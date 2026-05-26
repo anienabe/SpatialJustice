@@ -1,0 +1,171 @@
+bezeichnun,unbeznr,amount_points
+City-Ost,001,1
+City-West,002,0
+Cityring-West,003,0
+Cityring-Ost,004,0
+Westfalenhalle,011,1
+Südwestfriedhof,012,0
+Tremonia,013,0
+Westpark,021,0
+Dorstfelder Brücke,022,0
+Union,023,0
+Hallerey,031,0
+Dorstfeld,032,0
+Oberdorstfeld,033,0
+Hafen,041,0
+Hafen-Süd,042,0
+Hafen-Südost,043,0
+Nordmarkt-Süd,051,0
+Nordmarkt-Südost,052,0
+Nordmarkt-West,053,1
+Nordmarkt-Ost,054,0
+Borsigplatz,061,0
+Westfalenhütte,062,0
+Kaiserbrunnen,071,1
+Funkenburg,072,1
+Körne,073,1
+Westfalendamm-Nord,081,1
+Gartenstadt-Nord,082,0
+Westfalendamm-Süd,083,1
+Gartenstadt-Süd,084,0
+Ruhrallee West,091,0
+Ruhrallee Ost,092,1
+Brechten-Nord,111,0
+Brechten-Süd,112,0
+Niedereving,121,2
+Eving,122,0
+Obereving,123,0
+Kemminghausen,124,0
+HOLTHAUSEN,130,0
+LINDENHORST,140,0
+Altenderne,211,0
+Derne,212,0
+Grevel,221,0
+Hostedde,222,0
+Franz-Zimmer-Siedlung,231,0
+Kirchderne,232,0
+Kurl-Nord,241,0
+Kurl-Süd,242,0
+Husen-Nord,243,0
+Husen-Süd,244,0
+Lanstrop-Neu,251,0
+Lanstrop-Alt,252,0
+MSA-Siedlung,261,1
+Alt-Scharnhorst,262,0
+Westholz,263,0
+SCHARNHORST-OST,270,0
+Asselburg,311,0
+Asseln Dorf,312,0
+Asseln Hellweg,313,0
+Kolonie Holstein,314,0
+Kolonie Neuasseln,315,0
+Brackeler Feld,321,0
+Westheck,322,0
+Reichshof,323,1
+Brackel Dorf,324,1
+Brackel Hellweg,325,0
+Knappschaftskrankenhaus,326,0
+Hauptfriedhof,327,0
+Funkturmsiedlung,328,0
+Wambel Dorf,331,0
+Breierspfad,332,0
+Pferderennbahn,333,0
+Wickeder Feld,341,0
+Wickede Dorf,342,0
+Dollersweg,343,0
+Flughafen,344,0
+Aplerbecker Straße,411,0
+Marsbruchstraße,412,0
+Aplerbecker Markt,413,2
+Vieselerhofstraße,414,0
+Aplerbeck Bahnhof Süd,415,0
+Aplerbecker Mark,416,0
+Schwerter Straße,417,0
+Berghofen Dorf,421,0
+Ostkirchstraße,422,0
+Berghofer Mark,423,0
+Schüren-Neu,431,0
+Schüren-Alt,432,0
+Sölde-Nord,441,0
+Sölde-Süd,442,0
+Sölderholz,451,0
+Lichtendorf,452,0
+Benninghofen,511,1
+Loh,512,0
+Schulzentrum Hacheney,521,0
+Pferdebachtal,522,0
+Remberg,531,1
+Hörde,532,2
+Phönix-West,533,0
+Brücherhof,534,1
+Clarenberg,535,0
+Höchsten,541,0
+Holzen,542,0
+Syburg,551,0
+Buchholz,552,0
+Wellinghofen,561,1
+Durchstraße,562,0
+WICHLINGHOFEN,570,0
+Schönau,611,0
+Ostenbergstraße,612,0
+Krückenweg,613,0
+Baroper Markt,614,0
+Zechenplatz,615,0
+BITTERMARK,620,0
+Brünninghausen,631,0
+Renninghausen,632,0
+Eichlinghofen,641,0
+Universität,642,0
+Salingen,643,0
+Hombruch,651,1
+Deutsch-Luxemburger-Straße,652,0
+Siedlung Rotkehlchenweg,653,0
+Persebeck,661,0
+Kruckel,662,0
+Schnee,663,0
+Großholthausen,671,0
+Kirchhörde-Nord,672,0
+Kleinholthausen,673,0
+Kirchhörde-Ost,674,0
+Kirchhörde-West,675,1
+Löttringhausen-Nord,676,0
+Löttringhausen-Süd,677,0
+Schanze,678,0
+Rombergpark,681,0
+Lücklemberg,682,1
+MENGLINGHAUSEN,690,0
+BÖVINGHAUSEN,710,0
+KLEY,720,0
+Holte-Kreta,731,0
+Deipenbeck,732,1
+Lütgendortmund-Mitte,733,1
+Lütgendortmund-Ost,734,0
+Lütgendortmund-West,735,0
+Somborn,736,0
+Germania,741,1
+Marten,742,0
+OESPEL,750,0
+WESTRICH,760,0
+DEUSEN,810,0
+Mailoh,821,0
+Erpinghofsiedlung,822,0
+Wischlingen,823,0
+Huckarde,824,0
+Insterburgsiedlung,825,1
+Jungferntal,831,0
+Rahm,832,0
+Kirchlinde-Alt,841,0
+Siedlung Siepmannstraße,842,0
+Hangeney,843,0
+BODELSCHWINGH,910,0
+Brüninghausen/Knepper,921,0
+Mengeder Heide,922,0
+Mengede-Mitte,923,0
+Alte Kolonie,924,0
+NETTE,930,0
+OESTRICH,940,1
+Groppenbruch,951,0
+Schwieringhausen,952,0
+Ellinghausen,953,0
+Niedernette,954,0
+WESTERFILDE,960,1
