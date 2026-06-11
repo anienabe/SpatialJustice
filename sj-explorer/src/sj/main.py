@@ -6,6 +6,9 @@ from typing import List
 from sj.io import load_database
 from sj.weights import create_rook_swm, create_queen_swm, create_knn_swm, create_distance_swm, create_socio_swm
 from sj.analysis import build_morans_table, compute_local_morans
+from sj.viz import plot_lisa, plot_swm_weighted
+from sj.report import print_morans_table, save_morans_table
+
 
 
 logging.basicConfig(
@@ -27,13 +30,13 @@ def main(
         help="GeoJSON filename with location/year of data, inside the data/ folder.",
     ),
     analysis_variable: str = typer.Option(
-        "new_flats_1999_2016_pct",
+        "average_age_years",
         "--variable", 
         "-v",
         help="Column name to run Moran's I on.",
     ),
     socio_index: str = typer.Option(
-        "transfer_payment_pct",
+        "deaths_per_1000_abs",
         "--socio-index", 
         "-s",
         help="Column name used for socioeconomic SWM weighting.",
@@ -87,14 +90,24 @@ def main(
     # --- Global Moran's I table ---
     table = build_morans_table(polygons, available, variable=analysis_variable)
 
+    # --- Visualize ---
+    for name, w in available.items():
+        fig = plot_swm_weighted(polygons, w, title=f"{name} W")
+        fig.savefig(f"reports/swm_{name.replace(' ', '_').lower()}.png", dpi=150, bbox_inches="tight")
+
+    # --- Global Moran's I table ---
+    table = build_morans_table(polygons, available, variable=analysis_variable)
+    print_morans_table(table, variable=analysis_variable)
+    save_morans_table(table, variable=analysis_variable)
+
+    # --- LISA maps ---
+    for name, w in available.items():
+        lisa = compute_local_morans(polygons, w, variable=analysis_variable)
+        fig = plot_lisa(polygons, lisa, title=f"LISA — {name}")
+        fig.savefig(f"reports/lisa_{name.replace(' ', '_').lower()}.png", dpi=150, bbox_inches="tight")
+
     
-
-
-
     logger.info("---- end of execution ----")
-
-
-
 
 if __name__ == "__main__":
     app()

@@ -1,0 +1,5 @@
+W Type,Morans I,p-value,z-score,Significant
+Rook,0.0883,0.036,1.9795,yes
+Queen,0.0855,0.031,2.0356,yes
+KNN (k=4),0.0994,0.024,2.1795,yes
+Distance Band (5000),0.0324,0.023,2.4573,yes

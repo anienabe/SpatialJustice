@@ -10,6 +10,7 @@ dependencies = [
     "libpysal>=4.14.1",
     "matplotlib>=3.10.9",
     "pandas>=3.0.3",
+    "splot>=1.1.7",
     "typer>=0.26.7",
 ]
 
