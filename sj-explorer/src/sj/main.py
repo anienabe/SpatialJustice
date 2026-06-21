@@ -9,6 +9,7 @@ from sj.analysis import build_morans_table, compute_local_morans
 from sj.viz import plot_lisa, plot_swm_weighted
 from sj.report import print_morans_table, save_morans_table
 from sj.points import count_points_in_boundaries #new from Anke
+from sj.prediction import merge_two_years, build_prediction_table # new from Julia
 
 
 
@@ -99,7 +100,6 @@ def main(
         available["Socio-Similarity"] = create_socio_swm(polygons, base_w, index_col=socio_index)
 
     
-
     # --- Global Moran's I table ---
     table = build_morans_table(polygons, available, variable=analysis_variable)
 
@@ -121,6 +121,89 @@ def main(
 
     
     logger.info("---- end of execution ----")
+
+# access both workflows separately
+@app.command()
+def predict(
+    filename_t1: str = typer.Option(
+        "administrative_districts_dortmund_data_2018.geojson",
+        "--filename-t1",
+        "-f1",
+        help="GeoJSON for earlier time point (e.g., 2018).",
+    ),
+    filename_t2: str = typer.Option(
+        "administrative_districts_dortmund_data_2024.geojson",
+        "--filename-t2",
+        "-f2",
+        help="GeoJSON for later time point (e.g., 2024).",
+    ),
+    indicator: str = typer.Option(
+        "share_65_80_pct",
+        "--variable",
+        "-v",
+        help="Name of the socioeconomic indicator to predict.",
+    ),
+    id_col: str = typer.Option(
+        "unbeznr",
+        "--id-col",
+        "-i",
+        help="Column name of the unique district ID, used to join t1/t2 data.",
+    ),
+    name_col: str = typer.Option(
+        "bezeichnun",
+        "--name-col",
+        "-n",
+        help="Column name of the district name (used for display).",
+    ),
+    weight: str = typer.Option(
+        "queen",
+        "--weight",
+        "-w",
+        help="Which spatial weight matrix to use for the spatial lag predictor. Options: rook, queen, knn, distance.",
+    ),
+    distance_threshold: int = typer.Option(
+        5000, 
+        "--distance", 
+        "-d",
+        help="Distance threshold in metres for distance-band SWM (if selected)."
+    ),
+    steps: int = typer.Option(
+        1, 
+        "--steps", 
+        "-s",
+        help="How often the model is applied recursively (future projection)."
+    ),
+):
+    """
+    Loads two GeoJSON files for different years, merges them, builds a spatial weight matrix,
+    and fits a spatial lag regression model to predict the chosen indicator in t2 based on t1 values and spatial lag of t1.
+    """
+    logger.info(f"Loading {filename_t1} and {filename_t2} for prediction.")
+    Path("reports").mkdir(exist_ok=True)
+ 
+    polygons_t1 = load_database(filename=filename_t1)
+    polygons_t2 = load_database(filename=filename_t2)
+    gdf = merge_two_years(polygons_t1, polygons_t2, id_col=id_col)
+ 
+    # use previously defined weight functions
+    weight_builders = {
+        "rook": lambda: create_rook_swm(gdf),
+        "queen": lambda: create_queen_swm(gdf),
+        "knn": lambda: create_knn_swm(gdf),
+        "distance": lambda: create_distance_swm(gdf, threshold=distance_threshold),
+    }
+    if weight not in weight_builders:
+        raise typer.BadParameter(f"Unknown weight: {weight}")
+    w = weight_builders[weight]()
+ 
+    table = build_prediction_table(gdf, indicator=indicator, w=w, steps=steps, name_col=name_col)
+    print(table.sort_values(f"{indicator}_residual", key=abs, ascending=False).head(10))
+ 
+    out_path = f"reports/prediction_{indicator}_{weight}.csv"
+    table.to_csv(out_path)
+    logger.info(f"Prediction table saved: {out_path}")
+
+
 
 if __name__ == "__main__":
     app()
