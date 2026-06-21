@@ -8,6 +8,7 @@ from sj.weights import create_rook_swm, create_queen_swm, create_knn_swm, create
 from sj.analysis import build_morans_table, compute_local_morans
 from sj.viz import plot_lisa, plot_swm_weighted
 from sj.report import print_morans_table, save_morans_table
+from sj.points import count_points_in_boundaries #new from Anke
 
 
 
@@ -53,6 +54,12 @@ def main(
         "-w",
         help="Which SWMs to build. Repeat flag for multiple: -w rook -w queen",
     ),
+    points: str = typer.Option(
+        None,
+        "--points",
+        "-p",
+        help="Name of point layer (without .geojson). E.g. --points playground",
+    ),
 ):
     """
     Loads a GeoJSON file, builds one or more spatial weight matrices (SWMs),
@@ -70,6 +77,12 @@ def main(
     Path("reports").mkdir(exist_ok=True)
 
     polygons = load_database(filename=filename)
+
+    # Point data counting (if desired)
+    if points:
+        polygons, point_col = count_points_in_boundaries(polygons, points)
+        if socio_index == "deaths_per_1000_abs":  # default not explicitly set
+            socio_index = point_col
 
     # --- Build selected spatial weight matrices ---
     available = {}
