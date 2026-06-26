@@ -9,9 +9,8 @@ from sj.weights import create_rook_swm, create_queen_swm, create_knn_swm, create
 from sj.analysis import build_morans_table, compute_local_morans
 from sj.viz import plot_lisa, plot_swm_weighted
 from sj.report import print_morans_table, save_morans_table
-from sj.points import count_points_in_boundaries #new from Anke
-from sj.prediction import merge_two_years, build_prediction_table # new from Julia
-
+from sj.points import count_points_in_boundaries 
+from sj.prediction import merge_two_years, build_prediction_table 
 
 
 logging.basicConfig(
