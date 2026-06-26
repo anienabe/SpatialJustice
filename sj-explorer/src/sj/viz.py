@@ -111,5 +111,55 @@ def plot_prediction_maps(gdf, table, indicator: str, year_t1: int, year_t2: int,
     sm = cm.ScalarMappable(norm=norm, cmap=cmap)
     fig.colorbar(sm, ax=axes, shrink=0.7, label=indicator)
     fig.suptitle(f"{indicator} — Prediction", fontsize=16)
+
+    return fig
+
+def plot_change_map(gdf, table, indicator: str, year_t1: int, year_t2: int, relative: bool = False, cmap: str = "RdBu_r"):
+    """
+    Plots the actual change in `indicator` between t1 and t2 as a single
+    choropleth map. Uses a diverging colormap centered at zero so increases
+    and decreases are visually distinguishable on the same scale.
+    Args:
+        gdf:       GeoDataFrame with geometry, same index as `table`.
+        table:     DataFrame from build_prediction_table. Must contain
+                   f"{indicator}_t1" and f"{indicator}_t2".
+        indicator: Name of the indicator column.
+        year_t1:   Year label for t1 (e.g. 2018).
+        year_t2:   Year label for t2 (e.g. 2024).
+        relative:  If True, shows percentage change instead of absolute
+                   difference.
+        cmap:      Diverging matplotlib colormap name.
+    Returns:
+        A matplotlib Figure object.
+    """
+    col_t1, col_t2 = f"{indicator}_t1", f"{indicator}_t2"
+    plot_gdf = gdf[["geometry"]].join(table[[col_t1, col_t2]])
  
+    if relative:
+        change_col = f"{indicator}_pct_change"
+        plot_gdf[change_col] = (plot_gdf[col_t2] - plot_gdf[col_t1]) / plot_gdf[col_t1] * 100
+        legend_label = f"{indicator} — Change (%)"
+    else:
+        change_col = f"{indicator}_change"
+        plot_gdf[change_col] = plot_gdf[col_t2] - plot_gdf[col_t1]
+        legend_label = f"{indicator} — Change (absolute)"
+ 
+    # diverging colormap centered at zero, so growth and shrinkage are symmetric around the same midpoint, regardless of which direction has the larger swing
+    max_abs = plot_gdf[change_col].abs().max()
+    norm = mcolors.TwoSlopeNorm(vmin=-max_abs, vcenter=0, vmax=max_abs)
+ 
+    fig, ax = plt.subplots(figsize=(8, 8))
+    plot_gdf.plot(
+        column=change_col,
+        cmap=cmap,
+        norm=norm,
+        ax=ax,
+        edgecolor="white",
+        linewidth=0.3,
+        legend=True,
+        legend_kwds={"label": legend_label, "shrink": 0.7},
+    )
+    ax.set_title(f"Change {indicator}: {year_t1} → {year_t2}", fontsize=14)
+    ax.set_axis_off()
+
     return fig

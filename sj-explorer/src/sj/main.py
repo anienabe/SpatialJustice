@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from sj.io import load_database
 from sj.weights import create_rook_swm, create_queen_swm, create_knn_swm, create_distance_swm, create_socio_swm
 from sj.analysis import build_morans_table, compute_local_morans
-from sj.viz import plot_lisa, plot_swm_weighted, plot_prediction_maps
+from sj.viz import plot_lisa, plot_swm_weighted, plot_prediction_maps, plot_change_map
 from sj.report import print_morans_table, save_morans_table
 from sj.points import count_points_in_boundaries 
 from sj.prediction import merge_two_years, build_prediction_table 
@@ -238,6 +238,13 @@ def predict(
     fig.savefig(map_path, dpi=150, bbox_inches="tight")
     plt.close(fig)
     logger.info(f"Prediction map saved: {map_path}")
+
+    # maps for change visualization
+    fig_change = plot_change_map(gdf, table, indicator=indicator, year_t1=year_t1, year_t2=year_t2)
+    change_map_path = f"reports/change_map_{indicator}.png"
+    fig_change.savefig(change_map_path, dpi=150, bbox_inches="tight")
+    plt.close(fig_change)
+    logger.info(f"Change map saved: {change_map_path}")
 
 
 
