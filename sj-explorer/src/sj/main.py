@@ -3,6 +3,7 @@ import logging
 import typer
 from pathlib import Path
 from typing import List
+import matplotlib.pyplot as plt
 from sj.io import load_database
 from sj.weights import create_rook_swm, create_queen_swm, create_knn_swm, create_distance_swm, create_socio_swm
 from sj.analysis import build_morans_table, compute_local_morans
@@ -113,11 +114,16 @@ def main(
     print_morans_table(table, variable=analysis_variable)
     save_morans_table(table, variable=analysis_variable)
 
-    # --- LISA maps ---
+   # --- LISA maps ---
     for name, w in available.items():
         lisa = compute_local_morans(polygons, w, variable=analysis_variable)
-        fig = plot_lisa(polygons, lisa, title=f"LISA — {name}")
-        fig.savefig(f"reports/lisa_{name.replace(' ', '_').lower()}.png", dpi=150, bbox_inches="tight")
+        fig = plot_lisa(polygons, lisa, title=f"LISA — {analysis_variable} — {name}")
+        fig.savefig(
+            f"reports/lisa_{analysis_variable.replace(' ', '_').lower()}_{name.replace(' ', '_').lower()}.png",
+            dpi=150,
+            bbox_inches="tight",
+        )
+        plt.close(fig)
 
     
     logger.info("---- end of execution ----")
