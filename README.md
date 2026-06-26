@@ -112,6 +112,14 @@ cd sj-explorer
 # Run the main app
 uv run sj main
 
+# Run with point data
+# required: your_pointdata.geojson
+# required: your_data_column
+uv run sj main -v "your_pointdata_count" -s "your_data_column" -p "your_pointdata" -w "rook" -w "socio"
+
+# What happens: by commanding -p "your_pointdata" the script in the back is running that counts the points per district. Result is a .geojson file which is called by -v "your_pointdata_count" as analysis variable.
+# you can also use "your_pointdata_count" as socio index -s.
+
 # Run the prediction app
 uv run sj prediction
 ```

@@ -27,7 +27,7 @@ app = typer.Typer()
 @app.command()
 def main(
     filename: str = typer.Option(
-        "administrative_districts_dortmund_data_2018.geojson",
+        "do_data2018.geojson",
         "--input",
         "-i",
         help="GeoJSON filename with location/year of data, inside the data/ folder.",
@@ -132,13 +132,13 @@ def main(
 @app.command()
 def predict(
     filename_t1: str = typer.Option(
-        "administrative_districts_dortmund_data_2018.geojson",
+        "do_data2018.geojson",
         "--filename-t1",
         "-f1",
         help="GeoJSON for earlier time point (e.g., 2018).",
     ),
     filename_t2: str = typer.Option(
-        "administrative_districts_dortmund_data_2024.geojson",
+        "do_data2024.geojson",
         "--filename-t2",
         "-f2",
         help="GeoJSON for later time point (e.g., 2024).",
