@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from sj.io import load_database
 from sj.weights import create_rook_swm, create_queen_swm, create_knn_swm, create_distance_swm, create_socio_swm
 from sj.analysis import build_morans_table, compute_local_morans
-from sj.viz import plot_lisa, plot_swm_weighted
+from sj.viz import plot_lisa, plot_swm_weighted, plot_prediction_maps
 from sj.report import print_morans_table, save_morans_table
 from sj.points import count_points_in_boundaries 
 from sj.prediction import merge_two_years, build_prediction_table 
@@ -152,6 +152,18 @@ def predict(
         "-f2",
         help="GeoJSON for later time point (e.g., 2024).",
     ),
+    year_t1: int = typer.Option(
+        2018,
+        "--year-t1",
+        "-y1",
+        help="Year label for t1 (for map titles; not parsed from the filename).",
+    ),
+    year_t2: int = typer.Option(
+        2024,
+        "--year-t2",
+        "-y2",
+        help="Year label for t2 (for map titles; not parsed from the filename).",
+    ),
     indicator: str = typer.Option(
         "share_65_80_pct",
         "--variable",
@@ -217,6 +229,16 @@ def predict(
     out_path = f"reports/prediction_{indicator}_{weight}.csv"
     table.to_csv(out_path)
     logger.info(f"Prediction table saved: {out_path}")
+
+    # side-by-side maps: t1, t2 and projected future step
+    fig = plot_prediction_maps(
+        gdf, table, indicator=indicator, year_t1=year_t1, year_t2=year_t2, steps=steps
+    )
+    map_path = f"reports/prediction_map_{indicator}_{weight}.png"
+    fig.savefig(map_path, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+    logger.info(f"Prediction map saved: {map_path}")
+
 
 
 

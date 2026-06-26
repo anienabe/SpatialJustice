@@ -57,4 +57,20 @@ def build_prediction_table(gdf, indicator, w, steps=1, name_col=None):
         f"{indicator}_projection": projection,
     })
 
+    # recursively apply the model steps into the future
+    current = y_t2
+    last_projection = None
+    for step in range(1, steps + 1):
+        lag_current = spatial_lag_from_w(current, w)
+        current = pd.Series(
+            model.intercept_ + model.coef_[0] * current + model.coef_[1] * lag_current,
+            index=gdf.index,
+        )
+        columns[f"{indicator}_projection_step{step}"] = current
+        last_projection = current
+ 
+    # keep the old single-column name pointing at the final step
+    columns[f"{indicator}_projection"] = last_projection
+
+
     return pd.DataFrame(columns)

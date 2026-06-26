@@ -1,5 +1,7 @@
 import esda
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+import matplotlib.colors as mcolors
 from splot.esda import lisa_cluster
 
 
@@ -54,4 +56,60 @@ def plot_swm_weighted(gdf, w, title: str):
     ax.scatter(cx, cy, color="steelblue", s=15, zorder=3)
     ax.set_title(title)
     ax.set_axis_off()
+    return fig
+
+def plot_prediction_maps(gdf, table, indicator: str, year_t1: int, year_t2: int, steps: int = 1, year_step: int = None, cmap: str = "viridis"):
+    """
+    Plots t1, t2 and every projected future step side by side, sharing one
+    colour scale across all panels so the change over time is directly
+    comparable at a glance.
+    Args:
+        gdf:       GeoDataFrame with geometry, same index as `table`
+                   (e.g. the result of merge_two_years).
+        table:     DataFrame from build_prediction_table. Must contain
+                   f"{indicator}_t1", f"{indicator}_t2" and
+                   f"{indicator}_projection_step1" .. f"{indicator}_projection_step{steps}".
+        indicator: Name of the indicator column being plotted.
+        year_t1:   Year label for t1 (e.g. 2018).
+        year_t2:   Year label for t2 (e.g. 2024).
+        steps:     How many projection steps to show after t2.
+        year_step: Year gap per projection step. Defaults to year_t2 - year_t1.
+        cmap:      Matplotlib colormap name.
+    Returns:
+        A matplotlib Figure object.
+    """
+    if year_step is None:
+        year_step = year_t2 - year_t1
+ 
+    cols = [f"{indicator}_t1", f"{indicator}_t2"] + [
+        f"{indicator}_projection_step{i}" for i in range(1, steps + 1)
+    ]
+    years = [year_t1, year_t2] + [year_t2 + i * year_step for i in range(1, steps + 1)]
+ 
+    plot_gdf = gdf[["geometry"]].join(table[cols])
+
+    vmin, vmax = plot_gdf[cols].min().min(), plot_gdf[cols].max().max()
+    norm = mcolors.Normalize(vmin=vmin, vmax=vmax)
+ 
+    n = len(cols)
+    fig, axes = plt.subplots(1, n, figsize=(5.5 * n, 6))
+    axes = axes if n > 1 else [axes]
+ 
+    for ax, col, year in zip(axes, cols, years):
+        plot_gdf.plot(
+            column=col,
+            cmap=cmap,
+            norm=norm,
+            ax=ax,
+            edgecolor="white",
+            linewidth=0.3,
+        )
+        label = "\n(Prediction)" if year > year_t2 else ""
+        ax.set_title(f"{year}{label}", fontsize=14)
+        ax.set_axis_off()
+ 
+    sm = cm.ScalarMappable(norm=norm, cmap=cmap)
+    fig.colorbar(sm, ax=axes, shrink=0.7, label=indicator)
+    fig.suptitle(f"{indicator} — Prediction", fontsize=16)
+ 
     return fig
