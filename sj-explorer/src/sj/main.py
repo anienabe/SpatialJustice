@@ -56,11 +56,11 @@ def main(
         "-w",
         help="Which SWMs to build. Repeat flag for multiple: -w rook -w queen",
     ),
-    points: str = typer.Option(
+    points: List[str] = typer.Option(
         None,
         "--points",
         "-p",
-        help="Name of point layer (without .geojson). E.g. --points playground",
+        help="Name of point layer (without .geojson). E.g. --points playground. Repeat for multiple: -p playgrounds -p kindergarten",
     ),
 ):
     """
@@ -82,9 +82,19 @@ def main(
 
     # Point data counting (if desired)
     if points:
-        polygons, point_col = count_points_in_boundaries(polygons, points)
+        for point_layer in points:
+            polygons, point_col = count_points_in_boundaries(polygons, point_layer)
         if socio_index == "deaths_per_1000_abs":  # default not explicitly set
             socio_index = point_col
+    
+    # add two columns of the geojson or add two point datasets
+    if "+" in analysis_variable:
+        col1, col2 = analysis_variable.split("+")
+        col1 = col1.strip()
+        col2 = col2.strip()
+        combined = col1 + "_plus_" + col2
+        polygons[combined] = polygons[col1] + polygons[col2]
+        analysis_variable = combined
 
     # --- Build selected spatial weight matrices ---
     available = {}
