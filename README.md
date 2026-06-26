@@ -60,6 +60,15 @@ In the main.py we defined with the help of typer the flags for "filename", "anal
 
 For the visualization of the Spatial Weight Matrix and the Moran's I the viz.py and report.py has the funcions.
 
+Points extraction
+tbd
+
+### Prediction
+
+Spatial-lag-based prediction for socioeconomic indicators
+
+tbd
+
 ## Project Structure
 
 ```
@@ -80,9 +89,12 @@ sj-explorer/
 |   ├── analysis.py
 |   ├── io.py
 |   ├── viz.py
+|   ├── points.py
+|   ├── prediction.py
 |   ├── report.py
 |   └── main.py
 ├── pyproject.toml
+├── requirements.py
 └── README.md
 ```
 
@@ -97,8 +109,11 @@ git clone https://github.com/anienabe/SpatialJustice
 # Navigate to the frontend
 cd sj-explorer
 
-# Run the app
-uv run sj
+# Run the main app
+uv run sj main
+
+# Run the prediction app
+uv run sj prediction
 ```
 
 ## Important Notes

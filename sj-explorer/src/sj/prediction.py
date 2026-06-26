@@ -126,7 +126,7 @@ def fit_spatial_lag_model(
     # grew/changed MORE than the model expected; negative means LESS.
     residuals = (y_t2 - pred).rename(f"{indicator}_residual")
 
-    logger.info(f"Spatial-Lag-Modell für '{indicator}': R²={model.score(X, y_t2):.3f}")
+    logger.info(f"Spatial-Lag-Model for '{indicator}': R²={model.score(X, y_t2):.3f}")
 
     return SpatialLagPredictionResult(
         indicator=indicator,
@@ -150,7 +150,7 @@ def project_forward(
     """Apply a fitted spatial-lag model recursively to project values beyond
     the most recent observed time point (e.g. estimate "2030" from 2024).
     
-    rgs:
+    Args:
         result: The fitted SpatialLagPredictionResult from
             fit_spatial_lag_model(), providing the coefficients to reuse.
         y_t2: The most recent observed values (e.g. 2024 data) 
@@ -195,7 +195,7 @@ def build_prediction_table(
  
     columns = {}
     if name_col is not None:
-        # Name ist in beiden Jahren gleich, daher reicht eine Variante (_t1)
+
         name_source = f"{name_col}_t1" if f"{name_col}_t1" in gdf.columns else name_col
         columns["name"] = gdf[name_source]
  
