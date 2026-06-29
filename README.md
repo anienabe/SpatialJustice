@@ -67,7 +67,7 @@ tbd
 
 For the prediction workflow, two GeoJSON files for different time points are loaded and merged, so that each district has values for both years available in one table. A spatial lag is then computed for each district using the spatial weight matrix, representing the weighted average of the indicator across all neighbouring districts.
 
-A linear regression model is fitted with two predictors: $$\hat{y}_{t2} = \beta_0 + \beta_1 \cdot y_{t1} + \beta_2 \cdot \text{lag}(y_{t1})$$
+A linear regression model is fitted with two predictors: ![formula](https://latex.codecogs.com/svg.image?\color{white}\hat{y}_{t2}=\beta_0+\beta_1\cdot%20y_{t1}+\beta_2\cdot\text{lag}(y_{t1}))
 
 the district's own value at t1 and its spatial lag at t1. The target variable is the value at t2. This way the model captures how much of a district's development can be explained by its own starting point versus the influence of its surroundings. R², both coefficients, and the residuals per district are logged and saved to a CSV.
 
