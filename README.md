@@ -65,9 +65,15 @@ tbd
 
 ### Prediction
 
-Spatial-lag-based prediction for socioeconomic indicators
+For the prediction workflow, two GeoJSON files for different time points are loaded and merged, so that each district has values for both years available in one table. A spatial lag is then computed for each district using the spatial weight matrix, representing the weighted average of the indicator across all neighbouring districts.
 
-tbd
+A linear regression model is fitted with two predictors: $$\hat{y}_{t2} = \beta_0 + \beta_1 \cdot y_{t1} + \beta_2 \cdot \text{lag}(y_{t1})$$
+
+the district's own value at t1 and its spatial lag at t1. The target variable is the value at t2. This way the model captures how much of a district's development can be explained by its own starting point versus the influence of its surroundings. R², both coefficients, and the residuals per district are logged and saved to a CSV.
+
+The trained model can be applied recursively for one or more steps into the future, using each projection as the input for the next step. In the main.py the predict command was defined with the help of typer with different flags. The --help flag describes the possible options.
+
+For the visualization, maps are generated for each time point alongside a change map, saved to the reports folder.
 
 ## Project Structure
 
@@ -121,6 +127,7 @@ uv run sj main -v "your_pointdata_count" -s "your_data_column" -p "your_pointdat
 # you can also use "your_pointdata_count" as socio index -s.
 
 # Run the prediction app
+# you can also use different flags.
 uv run sj prediction
 ```
 
