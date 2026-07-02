@@ -50,8 +50,6 @@ As a first step, the geodata with the boundaries of each of Dortmund's Unterbezi
 
 As a second step, the same data categories were collected, extracted and put in a csv. The data has to undergo some changes due to the aggregation of administrative districts over the period. After that, it was then joined with the administrative boundaries and converted into a GeoJSON format.
 
-To include infrastructural elements such as kindergartens or day care facilities, the point data was collected from Dortmund data portal and OSM. To use them in the spatial weight matrix a script was written to extract and count the points per districts. At the moment, the output is a data table in a csv-format and will probably converted to a GeoJSON format soon.
-
 ### Spatial Weight Matrix
 
 First we implemented the spatial weight types (rook, queen, knn, distance, social). After that we defined the Moran's I functionality, so now the global and local Moran's I can be computed.
@@ -60,14 +58,13 @@ In the main.py we defined with the help of typer the flags for "filename", "anal
 
 For the visualization of the Spatial Weight Matrix and the Moran's I the viz.py and report.py has the funcions.
 
-Points extraction
-tbd
+Points extraction: To include infrastructural elements such as kindergartens or day care facilities, the point data was collected from Dortmund data portal and OSM. To use them in the spatial weight matrix a script was written to extract and count the points per districts. The counting is saved as geojson and can be used as flag in the console.
 
 ### Prediction
 
 For the prediction workflow, two GeoJSON files for different time points are loaded and merged, so that each district has values for both years available in one table. A spatial lag is then computed for each district using the spatial weight matrix, representing the weighted average of the indicator across all neighbouring districts.
 
-A linear regression model is fitted with two predictors: ![formula](https://latex.codecogs.com/svg.image?\color{white}\hat{y}_{t2}=\beta_0+\beta_1\cdot%20y_{t1}+\beta_2\cdot\text{lag}(y_{t1}))
+A linear regression model is fitted with two predictors: ![formula](<https://latex.codecogs.com/svg.image?\color{white}\hat{y}_{t2}=\beta_0+\beta_1\cdot%20y_{t1}+\beta_2\cdot\text{lag}(y_{t1})>)
 
 the district's own value at t1 and its spatial lag at t1. The target variable is the value at t2. This way the model captures how much of a district's development can be explained by its own starting point versus the influence of its surroundings. R², both coefficients, and the residuals per district are logged and saved to a CSV.
 
