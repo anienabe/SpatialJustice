@@ -163,3 +163,65 @@ def plot_change_map(gdf, table, indicator: str, year_t1: int, year_t2: int, rela
     ax.set_axis_off()
 
     return fig
+
+
+def plot_composite_map(gdf, table, id_col: str, title: str, cmap: str = "Reds"):
+    """
+    Choropleth map of the final composite score, with the rank number
+    annotated at each district's centroid.
+
+    Args:
+        gdf:    GeoDataFrame with geometry and id_col (e.g. the t2 polygons).
+        table:  DataFrame from build_multi_year_score. Must contain
+                "final_score" and "rank", indexed by the same values as id_col.
+        id_col: Column name of the district ID in gdf.
+        title:  Map title.
+        cmap:   Matplotlib colormap name.
+    Returns:
+        A matplotlib Figure object.
+    """
+    plot_gdf = gdf.set_index(id_col)[["geometry"]].join(table[["final_score", "rank"]], how="inner")
+
+    fig, ax = plt.subplots(figsize=(8, 8))
+    plot_gdf.plot(
+        column="final_score",
+        cmap=cmap,
+        ax=ax,
+        edgecolor="white",
+        linewidth=0.3,
+        legend=True,
+        legend_kwds={"label": "Composite Score (1 = highest need for action)", "shrink": 0.7},
+    )
+
+    for _, row in plot_gdf.iterrows():
+        if row.geometry is not None:
+            c = row.geometry.centroid
+            ax.annotate(str(int(row["rank"])), (c.x, c.y), ha="center", va="center", fontsize=7, color="black")
+
+    ax.set_title(title, fontsize=14)
+    ax.set_axis_off()
+    return fig
+
+
+def plot_ranking_bar(table, top_n: int = 10, title: str = "Ranking — highest need for action"):
+    """
+    Horizontal bar chart of the top_n districts with the highest (worst)
+    final_score, worst district at the top.
+
+    Args:
+        table: DataFrame from build_multi_year_score, sorted descending by
+               final_score, with a "name" column.
+        top_n: How many districts to show.
+        title: Chart title.
+    Returns:
+        A matplotlib Figure object.
+    """
+    subset = table.head(top_n).iloc[::-1]
+
+    fig, ax = plt.subplots(figsize=(8, max(4, 0.4 * len(subset))))
+    ax.barh(subset["name"], subset["final_score"], color="firebrick")
+    ax.set_xlabel("Composite Score (1 = highest need for action)")
+    ax.set_title(title, fontsize=14)
+    fig.tight_layout()
+    return fig
+
