@@ -11,6 +11,8 @@ from sj.viz import plot_lisa, plot_swm_weighted, plot_prediction_maps, plot_chan
 from sj.report import print_morans_table, save_morans_table
 from sj.points import count_points_in_boundaries 
 from sj.prediction import merge_two_years, build_prediction_table, rmse, mae
+from sj.composite import parse_indicators, build_composite_score
+from sj.scoring import normalize_weights, score_single_year, project_indicators_to_future, build_multi_year_score
 
 
 logging.basicConfig(
@@ -250,6 +252,169 @@ def predict(
     plt.close(fig_change)
     logger.info(f"Change map saved: {change_map_path}")
 
+
+@app.command()
+def score(
+    indicator: List[str] = typer.Option(
+        ...,
+        "--indicator",
+        "-ind",
+        help="Indicator to include in the score, format 'column:higher_worse' or 'column:lower_worse'. Repeat for multiple is possible",
+    ),
+    scope: str = typer.Option(
+        "current",
+        "--scope",
+        "-sc",
+        help="Which time points to combine: 'current' (t2 only), 'historical' (t1+t2), 'full' (t1+t2+projected future).",
+    ),
+    filename_t1: str = typer.Option(
+        "do_data2018.geojson",
+        "--filename-t1",
+        "-f1",
+        help="GeoJSON for the earlier time point. Only needed for scope 'historical'/'full'.",
+    ),
+    filename_t2: str = typer.Option(
+        "do_data2024.geojson",
+        "--filename-t2",
+        "-f2",
+        help="GeoJSON for the current time point.",
+    ),
+    year_t1: int = typer.Option(
+        2018, 
+        "--year-t1", 
+        "-y1", 
+        help="Year label for t1 (for titles).",
+    ),
+    year_t2: int = typer.Option(
+        2024, 
+        "--year-t2", 
+        "-y2", 
+        help="Year label for t2 (for titles).",
+    ),
+    future_year: int = typer.Option(
+        2030, 
+        "--future-year", 
+        "-yf", 
+        help="Year label for the projection (for titles).",
+    ),
+    id_col: str = typer.Option(
+        "unbeznr", 
+        "--id-col", 
+        "-i", 
+        help="Column name of the unique district ID.",
+    ),
+    name_col: str = typer.Option(
+        "bezeichnun", 
+        "--name-col", 
+        "-n", 
+        help="Column name of the district name.",
+    ),
+    points: List[str] = typer.Option(
+        None,
+        "--points",
+        "-p",
+        help="Name of point layer (without .geojson). E.g. --points playground. Repeat for multiple: -p playgrounds -p kindergarten, added direction for 'lower_worse' or 'higher_worse'",
+    ),
+    weight: str = typer.Option(
+        "queen",
+        "--weight",
+        "-w",
+        help="Spatial weight matrix for the future projection (scope='full' only). Options: rook, queen, knn, distance.",
+    ),
+    distance_threshold: int = typer.Option(
+        5000, 
+        "--distance", 
+        "-d", 
+        help="Distance threshold in metres for distance-band SWM.",
+    ),
+    steps: int = typer.Option(
+        1, 
+        "--steps", 
+        help="Projection steps into the future (scope='full' only).",
+    ),
+    weight_past: float = typer.Option(
+        1.0, 
+        "--weight-past", 
+        help="Relative weight for the past (t1) score. Used for scope 'historical'/'full'.",
+    ),
+    weight_current: float = typer.Option(
+        1.0, 
+        "--weight-current", 
+        help="Relative weight for the current (t2) score.",
+    ),
+    weight_future: float = typer.Option(
+        1.0, 
+        "--weight-future", 
+        help="Relative weight for the projected future score. Used for scope 'full'.",
+    ),
+    top_n: int = typer.Option(
+        10, 
+        "--top-n", 
+        help="How many districts to show in the ranking bar chart.",
+    ),
+):
+    """
+    Builds a composite need-for-action score and district ranking.
+
+    Combines any number of indicators into one normalized [0,1] score per
+    district (1 = worst situation / highest need for action). Point-data
+    layers (e.g. playgrounds) can be folded in via --points.
+
+    --scope controls which time points are combined:
+      current     -> only t2 (e.g. 2024)
+      historical  -> t1 + t2 (e.g. 2018 + 2024), weighted by --weight-past / --weight-current
+      full        -> t1 + t2 + a projected future year (e.g. 2030), weighted by
+                     --weight-past / --weight-current / --weight-future
+
+    Weights don't need to sum to 1 - they are normalized automatically, so
+    e.g. --weight-past 2 --weight-current 1 means "past counts twice as much".
+    """
+    logger.info(f"Building composite score. scope={scope}")
+    Path("reports").mkdir(exist_ok=True)
+
+    if scope not in ("current", "historical", "full"):
+        raise typer.BadParameter("scope must be one of: current, historical, full")
+
+    indicators = parse_indicators(indicator)
+
+    gdf_t2 = load_database(filename=filename_t2)
+    gdf_t1 = load_database(filename=filename_t1) if scope in ("historical", "full") else None
+
+    # use point data counts in score as additional indicators
+    if points:
+        for point_layer in points:
+            gdf_t2, point_col = count_points_in_boundaries(gdf_t2, point_layer)
+            indicators.setdefault(point_col, "lower_worse")
+            if gdf_t1 is not None:
+                gdf_t1, _ = count_points_in_boundaries(gdf_t1, point_layer)
+
+    merged, w = None, None
+    if scope == "full":
+        merged = merge_two_years(gdf_t1, gdf_t2, id_col=id_col)
+        weight_builders = {
+            "rook": lambda: create_rook_swm(merged),
+            "queen": lambda: create_queen_swm(merged),
+            "knn": lambda: create_knn_swm(merged),
+            "distance": lambda: create_distance_swm(merged, threshold=distance_threshold),
+        }
+        if weight not in weight_builders:
+            raise typer.BadParameter(f"Unknown weight: {weight}")
+        w = weight_builders[weight]()
+
+    table = build_multi_year_score(
+        gdf_t2=gdf_t2,
+        indicators=indicators,
+        id_col=id_col,
+        name_col=name_col,
+        scope=scope,
+        weight_past=weight_past,
+        weight_current=weight_current,
+        weight_future=weight_future,
+        gdf_t1=gdf_t1,
+        merged=merged,
+        w=w,
+        steps=steps,
+    )
 
 
 
