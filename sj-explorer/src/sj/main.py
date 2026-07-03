@@ -10,7 +10,7 @@ from sj.analysis import build_morans_table, compute_local_morans
 from sj.viz import plot_lisa, plot_swm_weighted, plot_prediction_maps, plot_change_map
 from sj.report import print_morans_table, save_morans_table
 from sj.points import count_points_in_boundaries 
-from sj.prediction import merge_two_years, build_prediction_table 
+from sj.prediction import merge_two_years, build_prediction_table, rmse, mae
 
 
 logging.basicConfig(
@@ -225,6 +225,10 @@ def predict(
  
     table = build_prediction_table(gdf, indicator=indicator, w=w, steps=steps, name_col=name_col)
     print(table.sort_values(f"{indicator}_residual", key=abs, ascending=False).head(10))
+
+    actual    = table[f"{indicator}_t2"].to_numpy()
+    predicted = table[f"{indicator}_pred_t2"].to_numpy()
+    logger.info(f"MAE={mae(actual, predicted):.3f}  RMSE={rmse(actual, predicted):.3f}")
  
     out_path = f"reports/prediction_{indicator}_{weight}.csv"
     table.to_csv(out_path)

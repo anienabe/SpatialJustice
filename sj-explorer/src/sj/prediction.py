@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import pandas as pd
 import geopandas as gpd
+import numpy as np
 from sklearn.linear_model import LinearRegression
 
 logger = logging.getLogger(__name__)
@@ -74,3 +75,13 @@ def build_prediction_table(gdf, indicator, w, steps=1, name_col=None):
 
 
     return pd.DataFrame(columns)
+
+# RMSE = Root Mean Square Error
+# measures how far your predictions are from the real values,
+# on average, in the same units as the target. Lower is better.
+
+def rmse(actual, predicted):
+    return float(np.sqrt(np.mean((actual - predicted) ** 2)))
+
+def mae(actual, predicted):
+    return float(np.mean(np.abs(actual - predicted)))
