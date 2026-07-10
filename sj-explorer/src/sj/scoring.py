@@ -102,7 +102,7 @@ def build_multi_year_score(
         if merged is None or w is None:
             raise ValueError("full scope requires merged and w")
         
-        projected_gdf = project_indicators_to_future(merged, indicators, name_col=name_col, w=w, steps=steps)
+        projected_gdf = project_indicators_to_future(merged, indicators, name_col=name_col, w=w, gdf_t2=gdf_t2, id_col=id_col, steps=steps)
         future_result = build_composite_score(projected_gdf, indicators)
         year_scores["score_future"] = future_result["composite_score"]
         year_weights["score_future"] = weight_future
