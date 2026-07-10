@@ -42,10 +42,16 @@ def print_ranking(table: pd.DataFrame, scope: str) -> None:
     print()
 
 
-def save_ranking(table: pd.DataFrame, scope: str, output_dir: str = "reports") -> None:
-    """Saves the composite score ranking table as CSV."""
-    Path(output_dir).mkdir(exist_ok=True)
-    filename = f"{output_dir}/composite_score_{scope}.csv"
+# def save_ranking(table: pd.DataFrame, scope: str, output_dir: str = "reports") -> None:
+#     """Saves the composite score ranking table as CSV."""
+#     Path(output_dir).mkdir(exist_ok=True)
+#     filename = f"{output_dir}/composite_score_{scope}.csv"
+#     cols = [c for c in table.columns if c != "geometry"]
+#     table[cols].to_csv(filename)
+#     logger.info("Composite score ranking saved to %s", filename)
+
+def save_ranking(table: pd.DataFrame, scope: str, label: str = "composite", output_dir: str = "reports") -> None:
+    filename = f"{output_dir}/score_{label}_{scope}.csv"
     cols = [c for c in table.columns if c != "geometry"]
     table[cols].to_csv(filename)
     logger.info("Composite score ranking saved to %s", filename)

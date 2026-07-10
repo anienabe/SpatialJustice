@@ -7,12 +7,12 @@ import matplotlib.pyplot as plt
 from sj.io import load_database
 from sj.weights import create_rook_swm, create_queen_swm, create_knn_swm, create_distance_swm, create_socio_swm
 from sj.analysis import build_morans_table, compute_local_morans
-from sj.viz import plot_lisa, plot_swm_weighted, plot_prediction_maps, plot_change_map, plot_ranking_bar, plot_composite_map
+from sj.viz import plot_lisa, plot_swm_weighted, plot_prediction_maps, plot_change_map, plot_composite_map, plot_ranking_bar
 from sj.report import print_morans_table, save_morans_table, print_ranking, save_ranking
 from sj.points import count_points_in_boundaries 
 from sj.prediction import merge_two_years, build_prediction_table, rmse, mae
-from sj.composite import parse_indicators
-from sj.scoring import build_multi_year_score
+from sj.composite import parse_indicators, build_composite_score
+from sj.scoring import normalize_weights, score_single_year, project_indicators_to_future, build_multi_year_score
 
 
 logging.basicConfig(
@@ -352,6 +352,12 @@ def score(
         "--top-n", 
         help="How many districts to show in the ranking bar chart.",
     ),
+    label: str = typer.Option(
+    "composite",
+    "--label",
+    "-l",
+    help="Label for this analysis run, used in output filenames.",
+    ),
 ):
     """
     Builds a composite need-for-action score and district ranking.
@@ -417,7 +423,7 @@ def score(
     )
 
     print_ranking(table, scope=scope)
-    save_ranking(table, scope=scope)
+    save_ranking(table, scope=scope, label=label)
 
     year_label = {
         "current": f"{year_t2}",
@@ -426,16 +432,12 @@ def score(
     }[scope]
 
     fig_map = plot_composite_map(gdf_t2, table, id_col=id_col, title=f"Composite Score — need for action ({year_label})")
-    map_path = f"reports/composite_score_map_{scope}.png"
-    fig_map.savefig(map_path, dpi=150, bbox_inches="tight")
-    plt.close(fig_map)
-    logger.info(f"Composite score map saved: {map_path}")
+    fig_map.savefig(f"reports/score_map_{label}_{scope}.png", dpi=150, bbox_inches="tight")
+    logger.info(f"Composite score map saved: reports/score_map_{label}_{scope}.png")
 
     fig_bar = plot_ranking_bar(table, top_n=top_n, title=f"Top {top_n} — highest need for action ({year_label})")
-    bar_path = f"reports/composite_score_ranking_{scope}.png"
-    fig_bar.savefig(bar_path, dpi=150, bbox_inches="tight")
-    plt.close(fig_bar)
-    logger.info(f"Composite score ranking chart saved: {bar_path}")
+    fig_bar.savefig(f"reports/score_ranking_{label}_{scope}.png", dpi=150, bbox_inches="tight")
+    logger.info(f"Composite score ranking chart saved: reports/score_ranking_{label}_{scope}.png")
 
     logger.info("---- end of execution ----")
 
