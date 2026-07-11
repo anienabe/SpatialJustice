@@ -4,6 +4,17 @@ import matplotlib.cm as cm
 import matplotlib.colors as mcolors
 from splot.esda import lisa_cluster
 
+def add_caption(fig, text: str):
+    """
+    Adds a short explanation at the bottom of a figure.
+    Kept as one helper so every plot explains itself the same way.
+    """
+    fig.text(
+        0.5, 0.02, text,
+        ha="center", va="bottom",
+        fontsize=9, style="italic", color="dimgrey", wrap=True,
+    )
+    fig.subplots_adjust(bottom=0.12)
 
 def plot_lisa(gdf, lisa: esda.Moran_Local, title: str):
     """
@@ -18,7 +29,15 @@ def plot_lisa(gdf, lisa: esda.Moran_Local, title: str):
         A matplotlib Figure object.
     """
     fig, ax = lisa_cluster(lisa, gdf, p=0.05)
-    ax.set_title(title)
+    ax.set_title(title, fontsize=14)
+
+    add_caption(
+        fig,
+        "Colored areas are statistically significant spatial clusters (p < 0.05):\n"
+        "High-High = a high-value area surrounded by high-value neighbors, "
+        "Low-Low = a low-value area surrounded by low-value neighbors.\n"
+        "High-Low / Low-High mark outliers that differ from their neighbors. Grey = not significant.",
+    )
     return fig
 
 def plot_swm_weighted(gdf, w, title: str):
@@ -56,6 +75,12 @@ def plot_swm_weighted(gdf, w, title: str):
     ax.scatter(cx, cy, color="steelblue", s=15, zorder=3)
     ax.set_title(title)
     ax.set_axis_off()
+
+    add_caption(
+        fig,
+        "Each dot is a district. Lines show which districts are connected as 'neighbors'.\n"
+        "Thicker, darker lines mean a stronger connection between those two districts.",
+    )
     return fig
 
 def plot_prediction_maps(gdf, table, indicator: str, year_t1: int, year_t2: int, steps: int = 1, year_step: int = None, cmap: str = "viridis"):
@@ -161,6 +186,14 @@ def plot_change_map(gdf, table, indicator: str, year_t1: int, year_t2: int, rela
     )
     ax.set_title(f"Change {indicator}: {year_t1} → {year_t2}", fontsize=14)
     ax.set_axis_off()
+
+    explain = "shows the percentage change" if relative else "shows the absolute change"
+    add_caption(
+        fig,
+        f"This map {explain} in '{indicator}' between {year_t1} and {year_t2}.\n"
+        "Blue = increase, red = decrease (white = little to no change).",
+    )
+    return fig
 
     return fig
 
