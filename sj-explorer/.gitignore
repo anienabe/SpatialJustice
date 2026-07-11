@@ -8,6 +8,6 @@ dist/
 wheels/
 *.egg-info
 reports/
-
+preprocessing/output/
 # Virtual environments
 .venv
