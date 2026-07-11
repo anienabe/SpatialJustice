@@ -78,3 +78,38 @@ def build_composite_score(gdf: gpd.GeoDataFrame, indicators: dict[str, str]) -> 
         f"Score range: {result['composite_score'].min():.3f} - {result['composite_score'].max():.3f}"
     )
     return result
+
+def flag_consistent_disadvantage(
+    gdf: gpd.GeoDataFrame, indicators: dict[str, str], flag_top_n: int = 10
+) -> pd.DataFrame:
+    """
+    Identifies districts that are consistently disadvantaged across MULTIPLE
+    indicators, rather than just scoring high on the single averaged
+    composite_score (FR-4.3).
+
+    For each indicator, a district is "flagged" if it is among the flag_top_n
+    worst districts for that indicator (ties included, via rank(method="min")).
+    """
+    scored = build_composite_score(gdf, indicators)
+
+    flag_cols = {}
+    for col in indicators:
+        score_col = f"{col}_score"
+        ranks = scored[score_col].rank(method="min", ascending=False)
+        flag_cols[f"{col}_flagged"] = ranks <= flag_top_n
+
+    result = pd.DataFrame(flag_cols, index=scored.index)
+    result["n_indicators_flagged"] = result.sum(axis=1)
+    result["flagged_indicators"] = result[list(flag_cols)].apply(
+        lambda row: ", ".join(col.removesuffix("_flagged") for col, is_flagged in row.items() if is_flagged),
+        axis=1,
+    )
+
+    result = result.sort_values("n_indicators_flagged", ascending=False)
+
+    logger.info(
+        f"Flagged {int((result['n_indicators_flagged'] > 0).sum())} district(s) as top-{flag_top_n} "
+        f"worst in at least one of {len(indicators)} indicator(s); "
+        f"{int((result['n_indicators_flagged'] == len(indicators)).sum())} district(s) flagged in ALL of them."
+    )
+    return result

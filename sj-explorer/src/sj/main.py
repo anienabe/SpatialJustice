@@ -11,7 +11,7 @@ from sj.viz import plot_lisa, plot_swm_weighted, plot_prediction_maps, plot_chan
 from sj.report import print_morans_table, save_morans_table, print_ranking, save_ranking
 from sj.points import count_points_in_boundaries 
 from sj.prediction import merge_two_years, build_prediction_table, rmse, mae
-from sj.composite import parse_indicators, build_composite_score
+from sj.composite import parse_indicators, build_composite_score, flag_consistent_disadvantage
 from sj.scoring import normalize_weights, score_single_year, project_indicators_to_future, build_multi_year_score
 
 
@@ -352,6 +352,11 @@ def score(
         "--top-n", 
         help="How many districts to show in the ranking bar chart.",
     ),
+    flag_top_n: int = typer.Option(
+        10,
+        "--flag-top-n",
+        help="For each indicator, it will check which districts are in the top_n worst (in order to be classified as ‘consistently disadvantaged’)",
+    ),
     label: str = typer.Option(
     "composite",
     "--label",
@@ -424,6 +429,20 @@ def score(
 
     print_ranking(table, scope=scope)
     save_ranking(table, scope=scope, label=label)
+
+    # flag districts that are consistently disadvantaged across multiple indicators
+    flagged = flag_consistent_disadvantage(gdf_t2.set_index(id_col), indicators, flag_top_n=flag_top_n)
+    flagged.insert(0, "name", gdf_t2.set_index(id_col)[name_col].reindex(flagged.index))
+    print()
+    print("=" * 60)
+    print(f" Districts flagged as top-{flag_top_n} worst in multiple indicators ({year_t2})")
+    print("=" * 60)
+    print(flagged[flagged["n_indicators_flagged"] > 0].to_string())
+    print("=" * 60)
+    print()
+    flagged.to_csv(f"reports/flagged_{label}.csv")
+    logger.info(f"Consistently-disadvantaged flags saved to reports/flagged_{label}.csv")
+
 
     year_label = {
         "current": f"{year_t2}",
