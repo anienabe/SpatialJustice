@@ -18,10 +18,10 @@ def count_points_in_boundaries(boundaries, point_layer_name: str, output_dir: st
     pts_raw = pts_raw.to_crs(boundaries.crs)
 
     # plot both datasets to check data situation
-    fig, ax = plt.subplots()
-    boundaries.plot(ax=ax, edgecolor='black', color='powderblue')
-    pts_raw.plot(ax=ax, color='red')
-    plt.show()
+    # fig, ax = plt.subplots()
+    # boundaries.plot(ax=ax, edgecolor='black', color='powderblue')
+    # pts_raw.plot(ax=ax, color='red')
+    # plt.show()
 
     # copy of points
     pts = pts_raw.copy()
@@ -49,10 +49,10 @@ def count_points_in_boundaries(boundaries, point_layer_name: str, output_dir: st
     logger.info(f"Saved counts to {out_path}")
 
     # Plot to verify
-    boundaries_result['coloring'] = boundaries_result[col_name] > 0
-    ax = boundaries_result.plot(edgecolor='black', facecolor='powderblue')
-    pts_raw.plot(ax=ax, color='red', markersize=5)
-    boundaries_result[boundaries_result['coloring']].plot(ax=ax, facecolor='coral', edgecolor='black')
-    plt.show()
+    # boundaries_result['coloring'] = boundaries_result[col_name] > 0
+    # ax = boundaries_result.plot(edgecolor='black', facecolor='powderblue')
+    # pts_raw.plot(ax=ax, color='red', markersize=5)
+    # boundaries_result[boundaries_result['coloring']].plot(ax=ax, facecolor='coral', edgecolor='black')
+    # plt.show()
 
     return boundaries_result, col_name

@@ -40,6 +40,42 @@ def plot_lisa(gdf, lisa: esda.Moran_Local, title: str):
     )
     return fig
 
+def plot_lisa_comparison(gdf, lisas: dict, indicator: str, socio_index: str = None):
+    """
+    Plots multiple LISA cluster maps side by side for direct comparison
+    across different spatial weight matrices.
+
+    Args:
+        gdf:         GeoDataFrame with geometry.
+        lisas:       Dict mapping W-name (e.g. "Rook", "Queen", "Socio-Similarity")
+                     to its precomputed esda.Moran_Local object.
+        indicator:   Name of the analysis variable (for the suptitle).
+        socio_index: Optional name of the socio index, shown if a
+                     "Socio-Similarity" entry is present.
+    Returns:
+        A matplotlib Figure object.
+    """
+    n = len(lisas)
+    fig, axes = plt.subplots(1, n, figsize=(6.5 * n, 7))
+    axes = axes if n > 1 else [axes]
+
+    for ax, (name, lisa) in zip(axes, lisas.items()):
+        lisa_cluster(lisa, gdf, p=0.05, ax=ax)
+        if name == "Socio-Similarity" and socio_index:
+            ax.set_title(f"Is {indicator} reinforced by {socio_index}?", fontsize=11)
+        else:
+            ax.set_title(name, fontsize=12)
+
+    fig.suptitle(f"LISA Comparison — {indicator}", fontsize=16)
+    add_caption(
+        fig,
+        "Colored areas are statistically significant spatial clusters (p < 0.05):\n"
+        "High-High = a high-value area surrounded by high-value neighbors, "
+        "Low-Low = a low-value area surrounded by low-value neighbors.\n"
+        "High-Low / Low-High mark outliers that differ from their neighbors. Grey = not significant.",
+    )
+    return fig
+
 def plot_swm_weighted(gdf, w, title: str):
     """
     Visualizes a weighted W object — line thickness encodes edge weight.

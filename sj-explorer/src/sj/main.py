@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from sj.io import load_database
 from sj.weights import create_rook_swm, create_queen_swm, create_knn_swm, create_distance_swm, create_socio_swm
 from sj.analysis import build_morans_table, compute_local_morans
-from sj.viz import plot_lisa, plot_swm_weighted, plot_prediction_maps, plot_change_map, plot_composite_map, plot_ranking_bar
+from sj.viz import plot_lisa, plot_lisa_comparison, plot_swm_weighted, plot_prediction_maps, plot_change_map, plot_composite_map, plot_ranking_bar
 from sj.report import print_morans_table, save_morans_table, print_ranking, save_ranking
 from sj.points import count_points_in_boundaries 
 from sj.prediction import merge_two_years, build_prediction_table, rmse, mae
@@ -126,15 +126,17 @@ def main(
     save_morans_table(table, variable=analysis_variable)
 
    # --- LISA maps ---
+    lisas = {}
     for name, w in available.items():
-        lisa = compute_local_morans(polygons, w, variable=analysis_variable)
-        fig = plot_lisa(polygons, lisa, title=f"LISA — {analysis_variable} — {name}")
-        fig.savefig(
-            f"reports/lisa_{analysis_variable.replace(' ', '_').lower()}_{name.replace(' ', '_').lower()}.png",
-            dpi=150,
-            bbox_inches="tight",
-        )
-        plt.close(fig)
+        lisas[name] = compute_local_morans(polygons, w, variable=analysis_variable)
+
+    fig = plot_lisa_comparison(polygons, lisas, indicator=analysis_variable, socio_index=socio_index if "socio" in weights else None)
+    fig.savefig(
+        f"reports/lisa_comparison_{analysis_variable.replace(' ', '_').lower()}.png",
+        dpi=150,
+        bbox_inches="tight",
+    )
+    plt.close(fig)
 
     
     logger.info("---- end of execution ----")
