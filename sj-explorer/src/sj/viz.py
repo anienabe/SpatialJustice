@@ -169,9 +169,17 @@ def plot_prediction_maps(gdf, table, indicator: str, year_t1: int, year_t2: int,
         ax.set_title(f"{year}{label}", fontsize=14)
         ax.set_axis_off()
  
+    fig.suptitle(f"{indicator} — Prediction", fontsize=16)
+
+    add_caption(
+        fig,
+        "These maps show the values of the first two years (actual data) projected for the next time step(s).\n" \
+        "This is calculated using the linear regression model fitted on the first two years of data including the spatial weight matrix.\n" \
+    )
     sm = cm.ScalarMappable(norm=norm, cmap=cmap)
     fig.colorbar(sm, ax=axes, shrink=0.7, label=indicator)
-    fig.suptitle(f"{indicator} — Prediction", fontsize=16)
+
+
 
     return fig
 
