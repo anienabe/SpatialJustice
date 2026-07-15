@@ -6,15 +6,11 @@ Our project for the course _Spatial Justice and Support Decision Systems_.
 
 Anke Nienaber, Lea Heming, Julia Ilchmann
 
-## Project Overview
+## Motivation
 
-| Criteria                      | Weight  | Our Approach                                                                                                                                          |
-| ----------------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| _Concept & Problem Relevance_ | 25 %    | Structural problems in supporting elderly people and children in Dortmund districts                                                                   |
-| _Analytical Solution_         | 40 %    | Moran's I with spatial weight matrices (rook, queen, knn, distance band) to identify if neighbouring districts are spatially correlated + predictions |
-| _Decision Support_            | 20 %    | Composite index per administrative district → ranking and justice system                                                                              |
-| _Software Quality_            | 15 %    | Versioned on [GitHub](https://github.com/anienabe/SpatialJustice), inline comments and documentation                                                  |
-| _Innovation_                  | Bonus % | Prediction models and additional spatial methods beyond course scope                                                                                  |
+There are vulnerable groups in society.
+
+## Justice Concept
 
 ## Project Idea and Goals
 
@@ -25,7 +21,19 @@ That's why we include socioeconomic factors from all 170 districts of Dortmund a
 The following image shows our preliminary questions that will be analyzed with our Spatial Decision Support system which includes a spatial weight matrix.
 For each question we plan to create a district ranking (e.g. top ten) to identify districts for the specific question and to find out if there are districts which seem to be inequal across multiple indicators.
 
+## Project Overview
+
+| Criteria                      | Weight  | Our Approach                                                                                                                                          |
+| ----------------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| _Concept & Problem Relevance_ | 25 %    | Structural problems in supporting elderly people and children in Dortmund districts                                                                   |
+| _Analytical Solution_         | 40 %    | Moran's I with spatial weight matrices (rook, queen, knn, distance band) to identify if neighbouring districts are spatially correlated + predictions |
+| _Decision Support_            | 20 %    | Composite index per administrative district → ranking and justice system                                                                              |
+| _Software Quality_            | 15 %    | Versioned on [GitHub](https://github.com/anienabe/SpatialJustice), inline comments and documentation                                                  |
+| _Innovation_                  | Bonus % | Prediction models and additional spatial methods beyond course scope                                                                                  |
+
 <img width="680" height="909" alt="Bildschirmfoto 2026-06-11 um 10 22 48" src="https://github.com/user-attachments/assets/4ace6b01-376d-4ee6-8af6-ebdfd7a52188" />
+
+## Analytical Solution
 
 ## Data Sources
 
@@ -38,39 +46,6 @@ The social factors for Dortmund are taken from the
 The Point data is from the [Open Data Portal Dortmund](https://open-data.dortmund.de/pages/start/)
 
 The healthcare facilities are retrevied from OSM
-
-## Method
-
-- spatial weight matrix ----> ranking
-- values of 2018 ----> values of 2024 ----> prediction/ trend
-
-### Data preprocessing
-
-As a first step, the geodata with the boundaries of each of Dortmund's Unterbezirke (sub-districts) needs to be downloaded and converted to a GeoJSON. All the needed statistical information of social factors have to be converted from plain text in a pdf (year 2018) to a csv format. This can then be joined with the boundaries into a larger file, which is subsequently converted into a GeoJSON format.
-
-As a second step, the same data categories were collected, extracted and put in a csv. The data has to undergo some changes due to the aggregation of administrative districts over the period. After that, it was then joined with the administrative boundaries and converted into a GeoJSON format.
-
-### Spatial Weight Matrix
-
-First we implemented the spatial weight types (rook, queen, knn, distance, social). After that we defined the Moran's I functionality, so now the global and local Moran's I can be computed.
-
-In the main.py we defined with the help of typer the flags for "filename", "analysis_variable", "socio_index", "distance_threshold", "weights". So the users can define their own dataset to be used as well as the social indicators and weights used. The --help flag describes the possible options.
-
-For the visualization of the Spatial Weight Matrix and the Moran's I the viz.py and report.py has the funcions.
-
-Points extraction: To include infrastructural elements such as kindergartens or day care facilities, the point data was collected from Dortmund data portal and OSM. To use them in the spatial weight matrix a script was written to extract and count the points per districts. The counting is saved as geojson and can be used as flag in the console.
-
-### Prediction
-
-For the prediction workflow, two GeoJSON files for different time points are loaded and merged, so that each district has values for both years available in one table. A spatial lag is then computed for each district using the spatial weight matrix, representing the weighted average of the indicator across all neighbouring districts.
-
-A linear regression model is fitted with two predictors: ![formula](<https://latex.codecogs.com/svg.image?\color{white}\hat{y}_{t2}=\beta_0+\beta_1\cdot%20y_{t1}+\beta_2\cdot\text{lag}(y_{t1})>)
-
-the district's own value at t1 and its spatial lag at t1. The target variable is the value at t2. This way the model captures how much of a district's development can be explained by its own starting point versus the influence of its surroundings. R², both coefficients, and the residuals per district are logged and saved to a CSV.
-
-The trained model can be applied recursively for one or more steps into the future, using each projection as the input for the next step. In the main.py the predict command was defined with the help of typer with different flags. The --help flag describes the possible options.
-
-For the visualization, maps are generated for each time point alongside a change map, saved to the reports folder.
 
 ## Project Structure
 
@@ -127,6 +102,64 @@ uv run sj main -v "your_pointdata_count" -s "your_data_column" -p "your_pointdat
 # you can also use different flags.
 uv run sj prediction
 ```
+
+## Flags and Methods
+
+explanations and tables for each?
+
+command main: what, why, flags as input, output
+
+- for correlations between two factors
+- LISA maps
+
+command predict: what, why, flags as input, output
+
+- we have two years, let's predict the next
+
+command score: what, why, flags as input, output
+
+- composite score to find out what does it mean for the whole city
+- where is the biggest need to act (for policy makers)
+
+## Our Results
+
+Our questions
+Our commands in console
+Our outputs
+Our discussion
+
+## Our "Decision" resulting from our analysis
+
+e.g. district A, B, C need action to make life more just for children.
+e.g. district X, Y, Z need action to make life more just for older people.
+
+### Data preprocessing (Section needs to be moved somewhere???)
+
+As a first step, the geodata with the boundaries of each of Dortmund's Unterbezirke (sub-districts) needs to be downloaded and converted to a GeoJSON. All the needed statistical information of social factors have to be converted from plain text in a pdf (year 2018) to a csv format. This can then be joined with the boundaries into a larger file, which is subsequently converted into a GeoJSON format.
+
+As a second step, the same data categories were collected, extracted and put in a csv. The data has to undergo some changes due to the aggregation of administrative districts over the period. After that, it was then joined with the administrative boundaries and converted into a GeoJSON format.
+
+### Spatial Weight Matrix (Section needs to be moved/ integrated in flags and methods)
+
+First we implemented the spatial weight types (rook, queen, knn, distance, social). After that we defined the Moran's I functionality, so now the global and local Moran's I can be computed.
+
+In the main.py we defined with the help of typer the flags for "filename", "analysis_variable", "socio_index", "distance_threshold", "weights". So the users can define their own dataset to be used as well as the social indicators and weights used. The --help flag describes the possible options.
+
+For the visualization of the Spatial Weight Matrix and the Moran's I the viz.py and report.py has the funcions.
+
+Points extraction: To include infrastructural elements such as kindergartens or day care facilities, the point data was collected from Dortmund data portal and OSM. To use them in the spatial weight matrix a script was written to extract and count the points per districts. The counting is saved as geojson and can be used as flag in the console.
+
+### Prediction (Section needs to be moved/ integrated in flags and methods)
+
+For the prediction workflow, two GeoJSON files for different time points are loaded and merged, so that each district has values for both years available in one table. A spatial lag is then computed for each district using the spatial weight matrix, representing the weighted average of the indicator across all neighbouring districts.
+
+A linear regression model is fitted with two predictors: ![formula](<https://latex.codecogs.com/svg.image?\color{white}\hat{y}_{t2}=\beta_0+\beta_1\cdot%20y_{t1}+\beta_2\cdot\text{lag}(y_{t1})>)
+
+the district's own value at t1 and its spatial lag at t1. The target variable is the value at t2. This way the model captures how much of a district's development can be explained by its own starting point versus the influence of its surroundings. R², both coefficients, and the residuals per district are logged and saved to a CSV.
+
+The trained model can be applied recursively for one or more steps into the future, using each projection as the input for the next step. In the main.py the predict command was defined with the help of typer with different flags. The --help flag describes the possible options.
+
+For the visualization, maps are generated for each time point alongside a change map, saved to the reports folder.
 
 ## Important Notes
 
