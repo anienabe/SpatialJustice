@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 app = typer.Typer()
 
 @app.command()
-def main(
+def correlation(
     filename: str = typer.Option(
         "do_data2018.geojson",
         "--input",

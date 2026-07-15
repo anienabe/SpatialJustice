@@ -63,9 +63,8 @@ sj-explorer/
 ├── data
 ├── reports
 ├── preprocessing
-|   ├── extract_point_data.py
 |   └── output
-├── src
+├── src/sj
 |   ├── __pycache__
 |   ├── weights
 |   |    ├── __init__.py
@@ -73,12 +72,14 @@ sj-explorer/
 |   |    ├── distance.py
 |   |    └── socioeconomic.py
 |   ├── analysis.py
+|   ├── composite.py
 |   ├── io.py
-|   ├── viz.py
+|   ├── main.py
 |   ├── points.py
 |   ├── prediction.py
 |   ├── report.py
-|   └── main.py
+|   ├── scoring.py
+|   └── viz.py
 ├── pyproject.toml
 ├── requirements.py
 └── README.md
@@ -95,20 +96,23 @@ git clone https://github.com/anienabe/SpatialJustice
 # Navigate to the frontend
 cd sj-explorer
 
-# Run the main app
-uv run sj main
+# Run the correlation app
+uv run sj correlation
 
 # Run with point data
 # required: your_pointdata.geojson
 # required: your_data_column
-uv run sj main -v "your_pointdata_count" -s "your_data_column" -p "your_pointdata" -w "rook" -w "socio"
+uv run sj correlation -v "your_pointdata_count" -s "your_data_column" -p "your_pointdata" -w "rook" -w "socio"
 
 # What happens: by commanding -p "your_pointdata" the script in the back is running that counts the points per district. Result is a .geojson file which is called by -v "your_pointdata_count" as analysis variable.
 # you can also use "your_pointdata_count" as socio index -s.
 
 # Run the prediction app
 # you can also use different flags.
-uv run sj prediction
+uv run sj predict
+
+## Run the scoring app
+uv run sj score
 ```
 
 ## Flags and Methods
@@ -169,7 +173,27 @@ The trained model can be applied recursively for one or more steps into the futu
 
 For the visualization, maps are generated for each time point alongside a change map, saved to the reports folder.
 
-## Important Notes
+### Composite Score and Ranking (Section needs to be moved/ integrated into flags, at least partly)
+
+The score command combines a number of socioeconomic indicators into a single normalized need-for-action score per district, ranging from 0 (best situation) to 1 (highest need for action). Each indicator is min-max normalized across all districts and given a direction, higher_worse (e.g. child poverty rate) or lower_worse (e.g. living space per person), so that a higher score always means a worse situation regardless of the indicator's original scale. The final composite score is the weighted mean of all normalized indicators.
+
+Point data layers (e.g. kindergartens, day care facilities) can be included via the --points flag and are automatically counted per district and treated as lower_worse indicators.
+
+The --scope flag controls which time points are included in the score:
+
+- current uses only the most recent dataset (e.g. 2024)
+- historical combines past and current values, weighted by --weight-past and --weight-current
+- full additionally includes a projected future year (e.g. 2030) via the spatial lag regression model from the predict workflow, weighted by --weight-future
+
+For historical and full, all indicators are normalized across all included time points on a shared scale, so scores remain directly comparable across years. The final score is the weighted mean of the per-year composite scores, with weights normalized automatically so they don't need to sum to 1.
+
+Districts that rank among the worst --flag-top-n for multiple indicators simultaneously are flagged as consistently disadvantaged — meaning their situation is not driven by a single outlier indicator but by structural, multidimensional deprivation.
+
+Outputs saved to the reports folder include a ranked CSV table, a choropleth map with rank annotations, a bar chart of the worst districts, and a flagging table of consistently disadvantaged districts.
+
+## Functional, Technical, and Non-Functional Requirements
+
+See [Requirements](sj-explorer/requirements.md) for more details.
 
 ## License
 
