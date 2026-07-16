@@ -151,7 +151,6 @@ def correlation(
     
     logger.info("---- end of execution ----")
 
-# access both workflows separately
 @app.command()
 def predict(
     filename_t1: str = typer.Option(
@@ -268,7 +267,7 @@ def predict(
 @app.command()
 def score(
     indicator: List[str] = typer.Option(
-        ...,
+        ["living_space_per_inhabitant_sq_abs:lower_worse"],
         "--indicator",
         "-ind",
         help="Indicator to include in the score, format 'column:higher_worse' or 'column:lower_worse'. Repeat for multiple is possible",
