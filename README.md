@@ -18,9 +18,9 @@ As societies continue to age and the needs of younger generations shape the futu
 
 Our support decision system is based on two Justice Concepts.
 
-First, **John Rawls' Theory of Justice (1971)** says that social and economic inequalities is only justified, if they bring the greatest benefit to the least advantaged people of our society A fair equality of opportunity is already ensured.
+First, **John Rawls' Theory of Justice (1971)** [1] says that social and economic inequalities is only justified, if they bring the greatest benefit to the least advantaged people of our society A fair equality of opportunity is already ensured.
 
-Also **Iris Marion Young in Justice and the Politics of Difference (1990)** says that it is not good to think from justice only in a distributive kind of manner, so just asking who owns how much (number of daycares, care facilities per district). This does not show the structures and processes that create this distribution.
+Also **Iris Marion Young in Justice and the Politics of Difference (1990)**[2] says that it is not good to think from justice only in a distributive kind of manner, so just asking who owns how much (number of daycares, care facilities per district). This does not show the structures and processes that create this distribution.
 
 Our Composite Index shows where there is inequality in the infrastructure, not how it happened. The ranking is meant to help make decisions based on the idea that the most disadvantaged areas should be prioritised. This project does not look at the reasons for this.
 
@@ -194,3 +194,7 @@ See [Requirements](sj-explorer/requirements.md) for more details.
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
+
+## References
+[1] Rawls, J. (1971). A theory of justice (Rev. ed.). Harvard University Press.
+[2] Young, I. M. (1990). Justice and the politics of difference. Princeton University Press.
