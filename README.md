@@ -8,7 +8,11 @@ Anke Nienaber, Lea Heming, Julia Ilchmann
 
 ## Motivation
 
-There are vulnerable groups in society.
+Societies and cities are constantly changing and evolving due to factors such as migration, economic developments, and political decisions. While many working-age adults have the financial resources, mobility, and freedom to adapt to these changes by moving within a city or relocating elsewhere, not all population groups have the same opportunities.
+
+Children and older people are particularly affected, as they often have a stronger dependence on their immediate surroundings and fewer possibilities to overcome spatial disadvantages on their own. Safe, accessible, and supportive environments are therefore essential for their participation, well-being, and quality of life.
+
+As societies continue to age and the needs of younger generations shape the future of cities, ensuring spatial justice becomes increasingly important. Cities need to understand and address the different requirements of their residents to create fair living conditions across all districts.
 
 ## Justice Concept
 
@@ -30,14 +34,6 @@ The following image shows our preliminary questions that will be analyzed with o
 For each question we plan to create a district ranking (e.g. top ten) to identify districts for the specific question and to find out if there are districts which seem to be inequal across multiple indicators.
 
 ## Project Overview
-
-| Criteria                      | Weight  | Our Approach                                                                                                                                          |
-| ----------------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| _Concept & Problem Relevance_ | 25 %    | Structural problems in supporting elderly people and children in Dortmund districts                                                                   |
-| _Analytical Solution_         | 40 %    | Moran's I with spatial weight matrices (rook, queen, knn, distance band) to identify if neighbouring districts are spatially correlated + predictions |
-| _Decision Support_            | 20 %    | Composite index per administrative district → ranking and justice system                                                                              |
-| _Software Quality_            | 15 %    | Versioned on [GitHub](https://github.com/anienabe/SpatialJustice), inline comments and documentation                                                  |
-| _Innovation_                  | Bonus % | Prediction models and additional spatial methods beyond course scope                                                                                  |
 
 <img width="680" height="909" alt="Bildschirmfoto 2026-06-11 um 10 22 48" src="https://github.com/user-attachments/assets/4ace6b01-376d-4ee6-8af6-ebdfd7a52188" />
 
@@ -81,7 +77,7 @@ sj-explorer/
 |   ├── scoring.py
 |   └── viz.py
 ├── pyproject.toml
-├── requirements.py
+├── requirements.md
 └── README.md
 ```
 
