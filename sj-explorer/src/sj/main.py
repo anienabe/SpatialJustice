@@ -88,7 +88,7 @@ def correlation(
         if socio_index == "deaths_per_1000_abs":  # default not explicitly set
             socio_index = point_col
     
-    # add two columns of the geojson or add two point datasets
+    # add two columns (analysis variables) of the geojson or add two point datasets
     if "+" in analysis_variable:
         col1, col2 = analysis_variable.split("+")
         col1 = col1.strip()
@@ -96,6 +96,16 @@ def correlation(
         combined = col1 + "_plus_" + col2
         polygons[combined] = polygons[col1] + polygons[col2]
         analysis_variable = combined
+
+    # add two columns of the geojson for socio index
+    if "+" in socio_index:
+        col1, col2 = socio_index.split("+")
+        col1 = col1.strip()
+        col2 = col2.strip()
+        combined = col1 + "_plus_" + col2
+        if combined not in polygons.columns:
+            polygons[combined] = polygons[col1] + polygons[col2]
+        socio_index = combined
 
     # --- Build selected spatial weight matrices ---
     available = {}
