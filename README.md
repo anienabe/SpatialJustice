@@ -120,14 +120,37 @@ command main: what, why, flags as input, output
 - for correlations between two factors
 - LISA maps
 
+| Flag | Explanation                                              | Example             | Note                                                                                                                  |
+| ---- | -------------------------------------------------------- | ------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| -i   | GeoJSON input file                                       | do_data2018.geojson | must be in data folder                                                                                                |
+| -v   | Analysis variable for Moran's I calculation              | average_age_years   | can be added by "+"                                                                                                   |
+| -s   | Reinforcing variable for socioeconomic spatial weighting | deaths_per_1000_abs | can be added by "+"                                                                                                   |
+| -d   | Distance threshold                                       | 5000                | if distance band is used as weight                                                                                    |
+| -w   | weight for spatial weight matrix                         | rook                | can be used multiple times (maps side by side)                                                                        |
+| -p   | name of point layer                                      | playgrounds         | name must be filename without .geojson, can be added by "+", must be used with example+\_count as socioeconomic index |
+
 command predict: what, why, flags as input, output
 
 - we have two years, let's predict the next
+
+| Flag | Explanation | Example | Note |
+| ---- | ----------- | ------- | ---- |
+| Flag | Explanation | Example | Note |
+| Flag | Explanation | Example | Note |
+| Flag | Explanation | Example | Note |
+| Flag | Explanation | Example | Note |
 
 command score: what, why, flags as input, output
 
 - composite score to find out what does it mean for the whole city
 - where is the biggest need to act (for policy makers)
+
+| Flag | Explanation | Example | Note |
+| ---- | ----------- | ------- | ---- |
+| Flag | Explanation | Example | Note |
+| Flag | Explanation | Example | Note |
+| Flag | Explanation | Example | Note |
+| Flag | Explanation | Example | Note |
 
 ## Our Results
 
