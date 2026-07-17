@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from sj.io import load_database
 from sj.weights import create_rook_swm, create_queen_swm, create_knn_swm, create_distance_swm, create_socio_swm
 from sj.analysis import build_morans_table, compute_local_morans
-from sj.viz import plot_lisa, plot_lisa_comparison, plot_swm_weighted, plot_prediction_maps, plot_change_map, plot_composite_map, plot_ranking_bar
+from sj.viz import plot_lisa_comparison, plot_swm_weighted, plot_prediction_maps, plot_change_map, plot_composite_map, plot_ranking_bar
 from sj.report import print_morans_table, save_morans_table, print_ranking, save_ranking
 from sj.points import count_points_in_boundaries 
 from sj.prediction import merge_two_years, build_prediction_table, rmse, mae
@@ -107,7 +107,7 @@ def correlation(
             polygons[combined] = polygons[col1] + polygons[col2]
         socio_index = combined
 
-    # --- Build selected spatial weight matrices ---
+    # Build selected spatial weight matrices
     available = {}
     if "rook" in weights: available["Rook"] = create_rook_swm(polygons)
     if "queen" in weights: available["Queen"] = create_queen_swm(polygons)
@@ -122,20 +122,17 @@ def correlation(
         available["Socio-Similarity"] = create_socio_swm(polygons, base_w, index_col=socio_index)
 
     
-    # --- Global Moran's I table ---
-    table = build_morans_table(polygons, available, variable=analysis_variable)
-
-    # --- Visualize ---
-    for name, w in available.items():
-        fig = plot_swm_weighted(polygons, w, title=f"{name} W")
-        fig.savefig(f"reports/swm_{name.replace(' ', '_').lower()}.png", dpi=150, bbox_inches="tight")
-
-    # --- Global Moran's I table ---
+    # Global Moran's I table
     table = build_morans_table(polygons, available, variable=analysis_variable)
     print_morans_table(table, variable=analysis_variable)
     save_morans_table(table, variable=analysis_variable)
 
-   # --- LISA maps ---
+    # Visualize
+    for name, w in available.items():
+        fig = plot_swm_weighted(polygons, w, title=f"{name} W")
+        fig.savefig(f"reports/swm_{name.replace(' ', '_').lower()}.png", dpi=150, bbox_inches="tight")
+
+   # LISA maps
     lisas = {}
     for name, w in available.items():
         lisas[name] = compute_local_morans(polygons, w, variable=analysis_variable)

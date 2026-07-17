@@ -113,12 +113,13 @@ uv run sj score
 
 ## Flags and Methods
 
-explanations and tables for each?
+In this section the input, processing and output for each app.command (correlation, predict, score) are explained.
 
-command main: what, why, flags as input, output
+### Correlation
 
-- for correlations between two factors
-- LISA maps
+WHY?
+
+**Input**:
 
 | Flag | Explanation                                              | Example             | Note                                                                                                                  |
 | ---- | -------------------------------------------------------- | ------------------- | --------------------------------------------------------------------------------------------------------------------- |
@@ -128,6 +129,33 @@ command main: what, why, flags as input, output
 | -d   | Distance threshold                                       | 5000                | if distance band is used as weight                                                                                    |
 | -w   | Weight for spatial weight matrix                         | rook                | can be used multiple times (maps side by side)                                                                        |
 | -p   | Name of point layer                                      | playgrounds         | name must be filename without .geojson, can be added by "+", must be used with example+\_count as socioeconomic index |
+
+**Processing**
+
+- load geojson file
+- if point data input given:
+  - `count_points_in_boundaries` from points.py
+  - used counted points data column as socio index variable
+- if multiple analysis or socio variables given with "+" in input
+  - combine the two values per each district into one as analysis_variable or socio_index
+- build spatial weight matrix (accesses functions from contiguity.py and distance.py)
+  - `create_rook_swm` and `create_queen_swm`
+  - `create_distance_swm` and `create_knn_swm`
+- if socio index given as input
+  - distance band is used to create swm
+  - `create_socio_swm` (from socioeconomic.py) based on distance band
+- `build_morans_table` (from analysis.py)
+- `print_morans_table` and `save_morans_table` (from report.py)
+- `plot_swm_weighted` (from viz.py) for map with thin and thick lines
+- `compute_local_morans`(from analysis.py)
+- `plot_lisa_comparison`(from viz.py) for maps with all inputted weights
+
+**Output**
+
+- all output files are in reports folder
+- global Moran's I Comparison in console and .csv file
+- swm map with thin and thick lines for given input weights as .png files
+- LISA comparison map as .png file
 
 command predict: what, why, flags as input, output
 
@@ -151,27 +179,26 @@ command score: what, why, flags as input, output
 - composite score to find out what does it mean for the whole city
 - where is the biggest need to act (for policy makers)
 
-| Flag | Explanation | Example | Note |
-| ---- | ----------- | ------- | ---- |
-| -ind | Normalization, lower values worse or higher values worse selectable | living_space_per_inhabitant_sq_abs:lower:worse | Repeat is possible |
-| -sc | Years to use in analyses | current | latest dataset, historical dataset, projection into future possible |
-| -f1  | GeoJSOn input file for earlier year                     | do_data2018.gejson  | only for scope historical and full |
-| -f2  | GeoJSOn input file for second year                      | do_data2024.geojson | X |
-| -y1  | Year label for earlier year                             | 2018                | for titles display                              |
-| -y2  | Year label for second year                              | 2024                | for titles display
-| -yf | Year label for projection | 2030 | for titles display |
-| -i   | Column name to join both years                          | unbeznr             | needs to be the same in both files              |
-| -n   | Column for district name                                | bezeichnun          | for display 
-| -p   | Name of point layer                                      | playgrounds         | name must be filename without .geojson, can be added by "+", must be used with example+\_count as socioeconomic index |
-| -w | Spatial weight matrix for future projection | rook | only for scope full |
-| -d   | Distance threshold                                       | 5000                | if distance band is used as weight                                                                                    |
-| -s   | How often model is applied recursively                  | 1                   | only for scope full            |
-| -wp | Relative weight for the past score | 1.0 | only for scope historical and full; if 1.0 at wp, wc, wf, then all weighted equally |
-| -wc | Relative weight for the current score | 1.0 | if 1.0 at wp, wc, wf, then all weighted equally |
-| -wf | Relative weight for the projected future score | 1.0 | if 1.0 at wp, wc, wf, then all weighted equally |
-| -tn | How many districts dislayed in ranking barchart | 10 | X |
-| -l | Name for output file | composite | X |
-
+| Flag | Explanation                                                         | Example                                        | Note                                                                                                                  |
+| ---- | ------------------------------------------------------------------- | ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| -ind | Normalization, lower values worse or higher values worse selectable | living_space_per_inhabitant_sq_abs:lower:worse | Repeat is possible                                                                                                    |
+| -sc  | Years to use in analyses                                            | current                                        | latest dataset, historical dataset, projection into future possible                                                   |
+| -f1  | GeoJSOn input file for earlier year                                 | do_data2018.gejson                             | only for scope historical and full                                                                                    |
+| -f2  | GeoJSOn input file for second year                                  | do_data2024.geojson                            | X                                                                                                                     |
+| -y1  | Year label for earlier year                                         | 2018                                           | for titles display                                                                                                    |
+| -y2  | Year label for second year                                          | 2024                                           | for titles display                                                                                                    |
+| -yf  | Year label for projection                                           | 2030                                           | for titles display                                                                                                    |
+| -i   | Column name to join both years                                      | unbeznr                                        | needs to be the same in both files                                                                                    |
+| -n   | Column for district name                                            | bezeichnun                                     | for display                                                                                                           |
+| -p   | Name of point layer                                                 | playgrounds                                    | name must be filename without .geojson, can be added by "+", must be used with example+\_count as socioeconomic index |
+| -w   | Spatial weight matrix for future projection                         | rook                                           | only for scope full                                                                                                   |
+| -d   | Distance threshold                                                  | 5000                                           | if distance band is used as weight                                                                                    |
+| -s   | How often model is applied recursively                              | 1                                              | only for scope full                                                                                                   |
+| -wp  | Relative weight for the past score                                  | 1.0                                            | only for scope historical and full; if 1.0 at wp, wc, wf, then all weighted equally                                   |
+| -wc  | Relative weight for the current score                               | 1.0                                            | if 1.0 at wp, wc, wf, then all weighted equally                                                                       |
+| -wf  | Relative weight for the projected future score                      | 1.0                                            | if 1.0 at wp, wc, wf, then all weighted equally                                                                       |
+| -tn  | How many districts dislayed in ranking barchart                     | 10                                             | X                                                                                                                     |
+| -l   | Name for output file                                                | composite                                      | X                                                                                                                     |
 
 ## Our Results
 

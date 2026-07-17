@@ -16,29 +16,6 @@ def add_caption(fig, text: str):
     )
     fig.subplots_adjust(bottom=0.12)
 
-def plot_lisa(gdf, lisa: esda.Moran_Local, title: str):
-    """
-    Plots a LISA cluster map from a precomputed Moran_Local object.
-
-    Args:
-        gdf:   GeoDataFrame with geometry.
-        lisa:  A precomputed esda.Moran_Local object from analysis.py.
-        title: Title for the map.
-
-    Returns:
-        A matplotlib Figure object.
-    """
-    fig, ax = lisa_cluster(lisa, gdf, p=0.05)
-    ax.set_title(title, fontsize=14)
-
-    add_caption(
-        fig,
-        "Colored areas are statistically significant spatial clusters (p < 0.05):\n"
-        "High-High = a high-value area surrounded by high-value neighbors, "
-        "Low-Low = a low-value area surrounded by low-value neighbors.\n"
-        "High-Low / Low-High mark outliers that differ from their neighbors. Grey = not significant.",
-    )
-    return fig
 
 def plot_lisa_comparison(gdf, lisas: dict, indicator: str, socio_index: str = None):
     """

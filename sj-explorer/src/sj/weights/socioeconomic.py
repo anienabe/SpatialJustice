@@ -1,9 +1,3 @@
-# weight one matrix according to index
-# do children with migration backgrounds cluster among neighborhoods that are structurally similar in poverty?
-
-# requirements
-# socioWeight
-
 import logging
 import numpy as np
 from enum import Enum
@@ -63,7 +57,6 @@ def create_socio_swm(
 
     if max_val == min_val:
         raise ValueError(f"Column '{index_col}' has zero variance — cannot normalize.")
-    # WHY WE NEED THIS? Oh my... I am lost... :(
     # Because we need a way to compare % variables
     normalized_index = (raw_values - min_val) / (max_val - min_val)
 
