@@ -341,38 +341,44 @@ def score(
     steps: int = typer.Option(
         1, 
         "--steps", 
+        "-s",
         help="Projection steps into the future (scope='full' only).",
     ),
     weight_past: float = typer.Option(
         1.0, 
         "--weight-past", 
+        "-wp",
         help="Relative weight for the past (t1) score. Used for scope 'historical'/'full'.",
     ),
     weight_current: float = typer.Option(
         1.0, 
         "--weight-current", 
+        "-wc",
         help="Relative weight for the current (t2) score.",
     ),
     weight_future: float = typer.Option(
         1.0, 
         "--weight-future", 
+        "-wf",
         help="Relative weight for the projected future score. Used for scope 'full'.",
     ),
     top_n: int = typer.Option(
         10, 
         "--top-n", 
+        "-tn",
         help="How many districts to show in the ranking bar chart.",
     ),
     flag_top_n: int = typer.Option(
         10,
         "--flag-top-n",
+        "-fn",
         help="For each indicator, it will check which districts are in the top_n worst (in order to be classified as ‘consistently disadvantaged’)",
     ),
     label: str = typer.Option(
-    "composite",
-    "--label",
-    "-l",
-    help="Label for this analysis run, used in output filenames.",
+        "composite",
+        "--label",
+        "-l",
+        help="Label for this analysis run, used in output filenames.",
     ),
 ):
     """
