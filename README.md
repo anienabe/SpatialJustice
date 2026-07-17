@@ -119,7 +119,7 @@ In this section the input, processing and output for each app.command (correlati
 
 WHY?
 
-**Input**:
+**Input**
 
 | Flag | Explanation                                              | Example             | Note                                                                                                                  |
 | ---- | -------------------------------------------------------- | ------------------- | --------------------------------------------------------------------------------------------------------------------- |
@@ -138,9 +138,9 @@ WHY?
   - used counted points data column as socio index variable
 - if multiple analysis or socio variables given with "+" in input
   - combine the two values per each district into one as analysis_variable or socio_index
-- build spatial weight matrix (accesses functions from contiguity.py and distance.py)
-  - `create_rook_swm` and `create_queen_swm`
-  - `create_distance_swm` and `create_knn_swm`
+- build spatial weight matrix
+  - `create_rook_swm` and `create_queen_swm` (from contiguity.py)
+  - `create_distance_swm` and `create_knn_swm` (from distance.py)
 - if socio index given as input
   - distance band is used to create swm
   - `create_socio_swm` (from socioeconomic.py) based on distance band
@@ -152,14 +152,17 @@ WHY?
 
 **Output**
 
-- all output files are in reports folder
+All output files are in reports folder.
+
 - global Moran's I Comparison in console and .csv file
 - swm map with thin and thick lines for given input weights as .png files
 - LISA comparison map as .png file
 
-command predict: what, why, flags as input, output
+### Predict
 
-- we have two years, let's predict the next
+WHY?
+
+**Input**
 
 | Flag | Explanation                                             | Example             | Note                                            |
 | ---- | ------------------------------------------------------- | ------------------- | ----------------------------------------------- |
@@ -174,7 +177,32 @@ command predict: what, why, flags as input, output
 | -d   | Distance threshold                                      | 5000                | if distance band is used as weight              |
 | -s   | How often model is applied recursively                  | 1                   | how many times predict in the future            |
 
-command score: what, why, flags as input, output
+**Processing**
+
+- load two geojson files
+- `merge_two_years`(from prediction.py) into a new gdf
+- build spatial weight matrix
+  - `create_rook_swm` and `create_queen_swm` (from contiguity.py)
+  - `create_distance_swm` and `create_knn_swm` (from distance.py)
+- `build_prediction_table`
+  - uses given indicator, the swm based on given weight and given steps to calculate residuals and projection
+- Root Mean Squared Error and Mean Absolute Error are calculated with `rmse`and `mae`(from prediction.py)
+- `plot_prediction_map` with visualization of year 1, year 2 and projected year (from viz.py)
+- `plot_change_map` with visualization of change from year 1 to year 2 (from viz.py)
+
+**Output**
+
+All output files are in reports folder.
+
+- R square, RMSE and MAE value in console
+- table of actual values from year 1 to year 2 and projected years in console and saved as .csv file
+- side-by-side prediction map as .png file
+- change map as .png file
+
+### Score
+
+WHY?
+**Input**
 
 - composite score to find out what does it mean for the whole city
 - where is the biggest need to act (for policy makers)
