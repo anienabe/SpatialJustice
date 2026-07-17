@@ -126,19 +126,25 @@ command main: what, why, flags as input, output
 | -v   | Analysis variable for Moran's I calculation              | average_age_years   | can be added by "+"                                                                                                   |
 | -s   | Reinforcing variable for socioeconomic spatial weighting | deaths_per_1000_abs | can be added by "+"                                                                                                   |
 | -d   | Distance threshold                                       | 5000                | if distance band is used as weight                                                                                    |
-| -w   | weight for spatial weight matrix                         | rook                | can be used multiple times (maps side by side)                                                                        |
-| -p   | name of point layer                                      | playgrounds         | name must be filename without .geojson, can be added by "+", must be used with example+\_count as socioeconomic index |
+| -w   | Weight for spatial weight matrix                         | rook                | can be used multiple times (maps side by side)                                                                        |
+| -p   | Name of point layer                                      | playgrounds         | name must be filename without .geojson, can be added by "+", must be used with example+\_count as socioeconomic index |
 
 command predict: what, why, flags as input, output
 
 - we have two years, let's predict the next
 
-| Flag | Explanation | Example | Note |
-| ---- | ----------- | ------- | ---- |
-| Flag | Explanation | Example | Note |
-| Flag | Explanation | Example | Note |
-| Flag | Explanation | Example | Note |
-| Flag | Explanation | Example | Note |
+| Flag | Explanation                                             | Example             | Note                                            |
+| ---- | ------------------------------------------------------- | ------------------- | ----------------------------------------------- |
+| -f1  | GeoJSOn input file for earlier year                     | do_data2018.gejson  | still works with swapped years, but it is wrong |
+| -f2  | GeoJSOn input file for second year                      | do_data2024.geojson | still works with swapped years, but it is wrong |
+| -y1  | Year label for earlier year                             | 2018                | for titles display                              |
+| -y2  | Year label for second year                              | 2024                | for titles display                              |
+| -v   | Socioeconomic indicator to predict                      | share_65_80_pct     | X                                               |
+| -i   | Column name to join both years                          | unbeznr             | needs to be the same in both files              |
+| -n   | Column for district name                                | bezeichnun          | for display                                     |
+| -w   | Weight for spatial weight matrix to predict spatial lag | rook                | X                                               |
+| -d   | Distance threshold                                      | 5000                | if distance band is used as weight              |
+| -s   | How often model is applied recursively                  | 1                   | how many times predict in the future            |
 
 command score: what, why, flags as input, output
 
