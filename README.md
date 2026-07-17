@@ -202,10 +202,11 @@ All output files are in reports folder.
 ### Score
 
 WHY?
-**Input**
 
 - composite score to find out what does it mean for the whole city
 - where is the biggest need to act (for policy makers)
+
+**Input**
 
 | Flag | Explanation                                                         | Example                                        | Note                                                                                                                  |
 | ---- | ------------------------------------------------------------------- | ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
@@ -227,6 +228,40 @@ WHY?
 | -wf  | Relative weight for the projected future score                      | 1.0                                            | if 1.0 at wp, wc, wf, then all weighted equally                                                                       |
 | -tn  | How many districts dislayed in ranking barchart                     | 10                                             | X                                                                                                                     |
 | -l   | Name for output file                                                | composite                                      | X                                                                                                                     |
+
+**Processing**
+
+- `parse_indicators` (in composite.py)
+    - direction for normalization (higher worse or lower worse)
+- load one or two geojson files (if scope historical or full)
+- if points input:
+    - `count_points_in_boundaries` (from points.py) 
+    - used counted points data column as socio index variable
+- if scope is full:
+    - `merge_two_years` (from prediction.py)
+    - build spatial weight matrix
+        - `create_rook_swm` and `create_queen_swm` (from contiguity.py)
+        - `create_distance_swm` and `create_knn_swm` (from distance.py)
+- `build_multi_year_score` (from scoring.py)
+    - always score current year
+        - uses only `score_single_year` to get composite score (`build_composite_score`)
+    - if scope is historical:
+        - additionally score earlier year as with current year
+    - if scope is full:
+        - additionally score earlier year and prediction
+        - use `project_indicators_to_future` and `build_composite_score` for prediciton
+    - weighted sum of all included year scores
+- `print_ranking` and `save_ranking` (from report.py)
+- flag districts that are consistently disadvantaged `flag_consistent_disadvantaged` (from composite.py)
+- `plot_composite_map` and `plot_ranking` (from viz.py) with maps for composite score and ranking
+
+**Output**
+
+All output files are in reports folder.
+
+- Composite Score Ranking table in console and saved as .csv file (scope current, past, future, final and rank)
+- districts flagged as top-n worst in multiple indicators in console and saved as .csv file
+- composite score map and score ranking map saved as .png files
 
 ## Our Results
 
@@ -297,4 +332,5 @@ This project is licensed under the [MIT License](LICENSE).
 ## References
 
 [1] Rawls, J. (1971). A theory of justice (Rev. ed.). Harvard University Press.
+
 [2] Young, I. M. (1990). Justice and the politics of difference. Princeton University Press.

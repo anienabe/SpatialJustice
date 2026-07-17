@@ -75,6 +75,7 @@ def build_prediction_table(gdf, indicator, w, steps=1, name_col=None):
     return pd.DataFrame(columns)
 
 # RMSE = Root Mean Square Error
+# MAE = Mean Absolute Error
 # measures how far your predictions are from the real values,
 # on average, in the same units as the target. Lower is better.
 
