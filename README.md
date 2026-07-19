@@ -33,10 +33,6 @@ That's why we include socioeconomic factors from all 170 districts of Dortmund a
 The following image shows our preliminary questions that will be analyzed with our Spatial Decision Support system which includes a spatial weight matrix.
 For each question we plan to create a district ranking (e.g. top ten) to identify districts for the specific question and to find out if there are districts which seem to be inequal across multiple indicators.
 
-## Project Overview
-
-<img width="680" height="909" alt="Bildschirmfoto 2026-06-11 um 10 22 48" src="https://github.com/user-attachments/assets/4ace6b01-376d-4ee6-8af6-ebdfd7a52188" />
-
 ## Analytical Solution
 
 ## Data Sources
@@ -95,21 +91,27 @@ cd sj-explorer
 # Run the correlation app
 uv run sj correlation
 
-# Run with point data
-# required: your_pointdata.geojson
-# required: your_data_column
-uv run sj correlation -v "your_pointdata_count" -s "your_data_column" -p "your_pointdata" -w "rook" -w "socio"
+# Run with point data as socioeconomic OR analysis variable
+# required: example.geojson in data folder
+# required: analysis_variable OR socioeconomic_variable
+# as analysis variable
+uv run sj correlation -v "example_count" -s "socioeconomic_variable" -p "example" -w "rook" -w "socio"
 
-# What happens: by commanding -p "your_pointdata" the script in the back is running that counts the points per district. Result is a .geojson file which is called by -v "your_pointdata_count" as analysis variable.
-# you can also use "your_pointdata_count" as socio index -s.
+# as socioeconomic variable
+uv run sj correlation -v "analysis_variable" -s "example_count" -p "example" -w "rook" -w "socio"
 
 # Run the prediction app
-# you can also use different flags.
 uv run sj predict
 
-## Run the scoring app
+# Run the scoring app
 uv run sj score
 ```
+
+### Data preprocessing
+
+As a first step, the geodata with the boundaries of each of Dortmund's Unterbezirke (sub-districts) needs to be downloaded and converted to a GeoJSON. All the needed statistical information of social factors have to be converted from plain text in a pdf (year 2018) to a csv format. This can then be joined with the boundaries into a larger file, which is subsequently converted into a GeoJSON format.
+
+As a second step, the same data categories were collected, extracted and put in a csv. The data has to undergo some changes due to the aggregation of administrative districts over the period. After that, it was then joined with the administrative boundaries and converted into a GeoJSON format.
 
 ## Flags and Methods
 
@@ -117,7 +119,9 @@ In this section the input, processing and output for each app.command (correlati
 
 ### Correlation
 
-We have multiple variables in our GeoJSON and want to know how the spatial justice is correlated between the neighbouring districts. For this we can select one variable (analysis variable) and calculate the Global Moran's I to see how the phenomena (analysis variable) is clustered across the whole study area. Another possibility is to calculate the Local Moran's I to see local clusters. For this, we can either select just the analysis variable or an additional reinforcing variable (socioeconomic variable). A point dataset can also be given as input (that will be transformed in the background into a socioeconomic variable) to find out if the points have a reinforcing effect on our defined analysis variable.
+We have multiple variables in our GeoJSON and want to know how the spatial justice is correlated between the neighbouring districts. For this we can select one variable (analysis variable) and calculate the Global Moran's I to see how the phenomena (analysis variable) is clustered across the whole study area. Another possibility is to calculate the Local Moran's I to see local clusters. For this, we can either select just the analysis variable or an additional reinforcing variable (socioeconomic variable).
+
+A point dataset can also be given as input (that will be transformed in the background into a socioeconomic or analysis variable) to find out if the points have a reinforcing effect on our defined analysis variable.
 
 **Input**
 
@@ -281,52 +285,6 @@ Our discussion
 
 e.g. district A, B, C need action to make life more just for children.
 e.g. district X, Y, Z need action to make life more just for older people.
-
-### Data preprocessing (Section needs to be moved somewhere???)
-
-As a first step, the geodata with the boundaries of each of Dortmund's Unterbezirke (sub-districts) needs to be downloaded and converted to a GeoJSON. All the needed statistical information of social factors have to be converted from plain text in a pdf (year 2018) to a csv format. This can then be joined with the boundaries into a larger file, which is subsequently converted into a GeoJSON format.
-
-As a second step, the same data categories were collected, extracted and put in a csv. The data has to undergo some changes due to the aggregation of administrative districts over the period. After that, it was then joined with the administrative boundaries and converted into a GeoJSON format.
-
-### Spatial Weight Matrix (Section needs to be moved/ integrated in flags and methods)
-
-First we implemented the spatial weight types (rook, queen, knn, distance, social). After that we defined the Moran's I functionality, so now the global and local Moran's I can be computed.
-
-In the main.py we defined with the help of typer the flags for "filename", "analysis_variable", "socio_index", "distance_threshold", "weights". So the users can define their own dataset to be used as well as the social indicators and weights used. The --help flag describes the possible options.
-
-For the visualization of the Spatial Weight Matrix and the Moran's I the viz.py and report.py has the funcions.
-
-Points extraction: To include infrastructural elements such as kindergartens or day care facilities, the point data was collected from Dortmund data portal and OSM. To use them in the spatial weight matrix a script was written to extract and count the points per districts. The counting is saved as geojson and can be used as flag in the console.
-
-### Prediction (Section needs to be moved/ integrated in flags and methods)
-
-For the prediction workflow, two GeoJSON files for different time points are loaded and merged, so that each district has values for both years available in one table. A spatial lag is then computed for each district using the spatial weight matrix, representing the weighted average of the indicator across all neighbouring districts.
-
-A linear regression model is fitted with two predictors: ![formula](<https://latex.codecogs.com/svg.image?\color{white}\hat{y}_{t2}=\beta_0+\beta_1\cdot%20y_{t1}+\beta_2\cdot\text{lag}(y_{t1})>)
-
-the district's own value at t1 and its spatial lag at t1. The target variable is the value at t2. This way the model captures how much of a district's development can be explained by its own starting point versus the influence of its surroundings. R², both coefficients, and the residuals per district are logged and saved to a CSV.
-
-The trained model can be applied recursively for one or more steps into the future, using each projection as the input for the next step. In the main.py the predict command was defined with the help of typer with different flags. The --help flag describes the possible options.
-
-For the visualization, maps are generated for each time point alongside a change map, saved to the reports folder.
-
-### Composite Score and Ranking (Section needs to be moved/ integrated into flags, at least partly)
-
-The score command combines a number of socioeconomic indicators into a single normalized need-for-action score per district, ranging from 0 (best situation) to 1 (highest need for action). Each indicator is min-max normalized across all districts and given a direction, higher_worse (e.g. child poverty rate) or lower_worse (e.g. living space per person), so that a higher score always means a worse situation regardless of the indicator's original scale. The final composite score is the weighted mean of all normalized indicators.
-
-Point data layers (e.g. kindergartens, day care facilities) can be included via the --points flag and are automatically counted per district and treated as lower_worse indicators.
-
-The --scope flag controls which time points are included in the score:
-
-- current uses only the most recent dataset (e.g. 2024)
-- historical combines past and current values, weighted by --weight-past and --weight-current
-- full additionally includes a projected future year (e.g. 2030) via the spatial lag regression model from the predict workflow, weighted by --weight-future
-
-For historical and full, all indicators are normalized across all included time points on a shared scale, so scores remain directly comparable across years. The final score is the weighted mean of the per-year composite scores, with weights normalized automatically so they don't need to sum to 1.
-
-Districts that rank among the worst --flag-top-n for multiple indicators simultaneously are flagged as consistently disadvantaged — meaning their situation is not driven by a single outlier indicator but by structural, multidimensional deprivation.
-
-Outputs saved to the reports folder include a ranked CSV table, a choropleth map with rank annotations, a bar chart of the worst districts, and a flagging table of consistently disadvantaged districts.
 
 ## Functional, Technical, and Non-Functional Requirements
 
