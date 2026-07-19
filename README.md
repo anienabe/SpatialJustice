@@ -117,7 +117,7 @@ In this section the input, processing and output for each app.command (correlati
 
 ### Correlation
 
-WHY?
+We have multiple variables in our GeoJSON and want to know how the spatial justice is correlated between the neighbouring districts. For this we can select one variable (analysis variable) and calculate the Global Moran's I to see how the phenomena (analysis variable) is clustered across the whole study area. Another possibility is to calculate the Local Moran's I to see local clusters. For this, we can either select just the analysis variable or an additional reinforcing variable (socioeconomic variable). A point dataset can also be given as input (that will be transformed in the background into a socioeconomic variable) to find out if the points have a reinforcing effect on our defined analysis variable.
 
 **Input**
 
@@ -160,7 +160,8 @@ All output files are in reports folder.
 
 ### Predict
 
-WHY?
+We have found two datasets from two years with almost the same variables. Therefore it would be an perfect opportunity, to use this data to predict the trend of each district, based on the change of those two years. With the computation of a spatial lag for each district using the spatial weight matrix, a weighted average of the indicator across all neighbouring districts can be represented. Those valuable calculations can then be used for plotting change maps and integration into our composite score.
+So if you found data for two years, use it to get trends for multiple steps into the future.
 
 **Input**
 
@@ -190,6 +191,13 @@ WHY?
 - `plot_prediction_map` with visualization of year 1, year 2 and projected year (from viz.py)
 - `plot_change_map` with visualization of change from year 1 to year 2 (from viz.py)
 
+[3] **Formula:**
+A linear regression model is fitted with two predictors:
+
+![formula](<https://latex.codecogs.com/svg.image?\color{white}\hat{y}_{t2}=\beta_0+\beta_1\cdot%20y_{t1}+\beta_2\cdot\text{lag}(y_{t1})>)
+
+The model predicts each district's value at t2 from two inputs: its own past value (β₁) and the average of its neighbours' past values (β₂ · lag). The intercept β₀ captures the baseline shift.
+
 **Output**
 
 All output files are in reports folder.
@@ -201,16 +209,15 @@ All output files are in reports folder.
 
 ### Score
 
-WHY?
-
-- composite score to find out what does it mean for the whole city
-- where is the biggest need to act (for policy makers)
+For our decision support system we need to streamline all of our different functionalities into one meaningful otput.
+We combined our ideas from correlation and predict into one composite score to find out the districts with the highest need for action. This is shown in a ranking with a composite score.
+It can be interesting to find out more for the current situation, include the historical change and the predicted future trend in a full scope analysis.
 
 **Input**
 
 | Flag | Explanation                                                         | Example                                        | Note                                                                                                                  |
 | ---- | ------------------------------------------------------------------- | ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| -ind | Normalization, lower values worse or higher values worse selectable | living_space_per_inhabitant_sq_abs:lower:worse | Repeat is possible                                                                                                    |
+| -ind | Normalization, lower values worse or higher values worse selectable | living_space_per_inhabitant_sq_abs:lower:worse | Repeat is possible; these variables are ranked (no correlation or causality)                                          |
 | -sc  | Years to use in analyses                                            | current                                        | latest dataset, historical dataset, projection into future possible                                                   |
 | -f1  | GeoJSOn input file for earlier year                                 | do_data2018.gejson                             | only for scope historical and full                                                                                    |
 | -f2  | GeoJSOn input file for second year                                  | do_data2024.geojson                            | X                                                                                                                     |
@@ -232,25 +239,25 @@ WHY?
 **Processing**
 
 - `parse_indicators` (in composite.py)
-    - direction for normalization (higher worse or lower worse)
+  - direction for normalization (higher worse or lower worse)
 - load one or two geojson files (if scope historical or full)
 - if points input:
-    - `count_points_in_boundaries` (from points.py) 
-    - used counted points data column as socio index variable
+  - `count_points_in_boundaries` (from points.py)
+  - used counted points data column as socio index variable
 - if scope is full:
-    - `merge_two_years` (from prediction.py)
-    - build spatial weight matrix
-        - `create_rook_swm` and `create_queen_swm` (from contiguity.py)
-        - `create_distance_swm` and `create_knn_swm` (from distance.py)
+  - `merge_two_years` (from prediction.py)
+  - build spatial weight matrix
+    - `create_rook_swm` and `create_queen_swm` (from contiguity.py)
+    - `create_distance_swm` and `create_knn_swm` (from distance.py)
 - `build_multi_year_score` (from scoring.py)
-    - always score current year
-        - uses only `score_single_year` to get composite score (`build_composite_score`)
-    - if scope is historical:
-        - additionally score earlier year as with current year
-    - if scope is full:
-        - additionally score earlier year and prediction
-        - use `project_indicators_to_future` and `build_composite_score` for prediciton
-    - weighted sum of all included year scores
+  - always score current year
+    - uses only `score_single_year` to get composite score (`build_composite_score`)
+  - if scope is historical:
+    - additionally score earlier year as with current year
+  - if scope is full:
+    - additionally score earlier year and prediction
+    - use `project_indicators_to_future` and `build_composite_score` for prediciton
+  - weighted sum of all included year scores
 - `print_ranking` and `save_ranking` (from report.py)
 - flag districts that are consistently disadvantaged `flag_consistent_disadvantaged` (from composite.py)
 - `plot_composite_map` and `plot_ranking` (from viz.py) with maps for composite score and ranking
