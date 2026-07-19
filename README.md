@@ -6,6 +6,28 @@ Our project for the course _Spatial Justice and Support Decision Systems_.
 
 Anke Nienaber, Lea Heming, Julia Ilchmann
 
+## Table of Contents
+
+- [Motivation](#motivation)
+- [Justice Concept](#justice-concept)
+- [Project Idea and Goals](#project-idea-and-goals)
+- [Analytical Solution](#analytical-solution)
+- [Data Sources](#data-sources)
+- [Project Structure](#project-structure)
+- [Quickstart](#quickstart)
+- [Flags and Methods](#flags-and-methods)
+  - [Correlation](#correlation)
+  - [Predict](#predict)
+  - [Score](#score)
+- [Our Results](#our-results)
+  - [Correlation: Elderly Poverty and Living Alone](#correlation-elderly-poverty-and-living-alone)
+  - [Correlation: Living Space and Playgrounds](#correlation-living-space-and-playgrounds)
+  - [Prediction: Child Poverty 2018 → 2024 → 2030](#prediction-child-poverty-2018--2024--2030)
+  - [Score: Elder Vulnerability and Child Poverty](#score-elder-vulnerability-and-child-poverty)
+- [Functional, Technical, and Non-Functional Requirements](#functional-technical-and-non-functional-requirements)
+- [License](#license)
+- [References](#references)
+
 ## Motivation
 
 Societies and cities are constantly changing and evolving due to factors such as migration, economic developments, and political decisions. While many working-age adults have the financial resources, mobility, and freedom to adapt to these changes by moving within a city or relocating elsewhere, not all population groups have the same opportunities.
@@ -34,6 +56,8 @@ The following image shows our preliminary questions that will be analyzed with o
 For each question we plan to create a district ranking (e.g. top ten) to identify districts for the specific question and to find out if there are districts which seem to be inequal across multiple indicators.
 
 ## Analytical Solution
+
+In the following, our approach to solve the above stated problems is described step-by-step.
 
 ## Data Sources
 
@@ -276,15 +300,60 @@ All output files are in reports folder.
 
 ## Our Results
 
-Our questions
-Our commands in console
-Our outputs
-Our discussion
+### Correlation: Elderly Poverty and Living Alone
+Do districts with elderly poverty also have more people living alone?
 
-## Our "Decision" resulting from our analysis
+```bash
+uv run sj correlation -v "over_65_SGB_XII_pct" -s "single_households_over_65_pct" -w "rook" -w "socio"
+```
 
-e.g. district A, B, C need action to make life more just for children.
-e.g. district X, Y, Z need action to make life more just for older people.
+![LISA Comparison over_65_SGB_XII_pct](image-1.png)
+
+The rook map shows HH-clusters of elderly poverty in the city centre and north, with LL-clusters in the south. When weighted by single-household rate, the HH-cluster in the centre grows and extends, suggesting that elderly poverty and living alone spatially reinforce each other: where one is high, the other tends to be too. So, the two factors cluster together, particularly in the centre of Dortmund.
+
+### Correlation: Living Space and Playgrounds
+Do districts with less living space per inhabitant also have fewer playgrounds?
+
+```bash
+uv run sj correlation -v "living_space_per_inhabitant_sq_abs" -s "playgrounds_count" -p "playgrounds" -w "rook" -w "socio"
+```
+
+![LISA Comparison living_space_per_inhabitant_sq_abs](image.png)
+
+The rook LISA map shows that low living space clusters in the north and northwest, while the south has significantly more space per person. When switching to the socio-weighted SWM, weighted by playground density, the Low-Low cluster in the north grows noticeably. This means that districts with little living space tend to also have fewer playgrounds nearby, pointing to a spatial double disadvantage.
+
+### Prediction: Child Poverty 2018 → 2024 → 2030
+How does child poverty change over the years and what does the prediction show?
+
+```bash
+uv run sj predict -v "children_under_15_SGB_II_pct"
+```
+
+![Change Map children_under_15_SGB_II_pct](image-2.png)
+![Prediction Map children_under_15_SGB_II_pct](image-3.png)
+
+The change map shows that child poverty mostly decreased across Dortmund between 2018 and 2024, but a few districts in the north and centre actually increased. The prediction map shows the pattern staying largely stable into 2030, the high-poverty cluster in the north remains. With an R² of 0.922, the model confirms that child poverty is structurally persistent: where it was high in 2018, it tends to still be high in 2024 and likely in 2030.
+
+### Score: Elder Vulnerability and Child Poverty
+Which districts face the highest need for action across both vulnerable groups?
+
+```bash
+uv run sj score -ind "children_under_15_SGB_II_pct:higher_worse" -ind "living_space_per_inhabitant_sq_abs:lower_worse" -ind "over_65_SGB_XII_pct:higher_worse" -ind "single_households_over_65_pct:higher_worse" --scope full -w rook
+```
+
+![Composite Score Map](image-4.png)
+![Composite Score Ranking](image-5.png)
+
+The score combines child poverty, elderly poverty, single elderly households, playground count and senior daycare across three time points. Clarenberg leads the ranking (0.78), followed by Nordmarkt-Südost and Nordmarkt-Ost. The map shows the highest need for action concentrated in the north and city centre. Union is flagged in four out of five indicators simultaneously (child poverty, elderly poverty, single elderly households and missing senior daycare) pointing to structural multidimensional deprivation.
+
+**Limitations:** The `single_households_over_65_pct` prediction has an R² of 0.002, so the 2030 projection for this indicator is not meaningful. With only 26 senior daycare facilities city-wide, most districts have zero, making this indicator less useful for differentiation between districts.
+
+**Our Decision Support**
+Our composite score aimes to find the most precarious districts of Dortmund for children and elderly people as they are part of the society but often lack possibilities and face spatial disadvantages.
+
+The result consistently points to the same districts across all dimensions: the Nordmarkt area, Union, Borsigplatz, Hafen-Süd and Clarenberg face the highest need for action for both children and elderly people. Union is the only district flagged in four out of five indicators simultaneously, making it the clearest priority.
+
+Following Rawls, these are exactly the districts that should be prioritized: not because they have one isolated problem, but because deprivation compounds there across poverty, living space and infrastructure. Following Young, this analysis shows the distribution, not why it exists. But knowing where the need is greatest is the necessary first step for policy action.
 
 ## Functional, Technical, and Non-Functional Requirements
 
