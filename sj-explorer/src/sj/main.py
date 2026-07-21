@@ -25,6 +25,8 @@ logger = logging.getLogger(__name__)
 
 app = typer.Typer()
 
+
+### Correlation analysis command
 @app.command()
 def correlation(
     filename: str = typer.Option(
@@ -148,6 +150,8 @@ def correlation(
     
     logger.info("---- end of execution ----")
 
+
+### Prediction command
 @app.command()
 def predict(
     filename_t1: str = typer.Option(
@@ -261,6 +265,7 @@ def predict(
     logger.info(f"Change map saved: {change_map_path}")
 
 
+#### Composite scoring command
 @app.command()
 def score(
     indicator: List[str] = typer.Option(
