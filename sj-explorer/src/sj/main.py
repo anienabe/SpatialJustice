@@ -446,6 +446,7 @@ def score(
 
     # flag districts that are consistently disadvantaged across multiple indicators
     flagged = flag_consistent_disadvantage(gdf_t2.set_index(id_col), indicators, flag_top_n=flag_top_n)
+    # add district names to flagged table 
     flagged.insert(0, "name", gdf_t2.set_index(id_col)[name_col].reindex(flagged.index))
     print()
     print("=" * 60)

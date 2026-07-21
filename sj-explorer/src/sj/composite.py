@@ -85,13 +85,14 @@ def flag_consistent_disadvantage(
     """
     Identifies districts that are consistently disadvantaged across MULTIPLE
     indicators, rather than just scoring high on the single averaged
-    composite_score (FR-4.3).
+    composite_score.
 
     For each indicator, a district is "flagged" if it is among the flag_top_n
     worst districts for that indicator (ties included, via rank(method="min")).
     """
     scored = build_composite_score(gdf, indicators)
 
+    # each entry is a boolean indicating whether the district is flagged for that indicator
     flag_cols = {}
     for col in indicators:
         score_col = f"{col}_score"
@@ -99,12 +100,13 @@ def flag_consistent_disadvantage(
         flag_cols[f"{col}_flagged"] = ranks <= flag_top_n
 
     result = pd.DataFrame(flag_cols, index=scored.index)
+    # count how many indicators each district is flagged for
     result["n_indicators_flagged"] = result.sum(axis=1)
     result["flagged_indicators"] = result[list(flag_cols)].apply(
         lambda row: ", ".join(col.removesuffix("_flagged") for col, is_flagged in row.items() if is_flagged),
         axis=1,
     )
-
+    # sort by number of indicators flagged, descending
     result = result.sort_values("n_indicators_flagged", ascending=False)
 
     logger.info(

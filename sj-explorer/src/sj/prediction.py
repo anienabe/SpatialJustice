@@ -29,6 +29,29 @@ def spatial_lag_from_w(values, w):
 # trains model: what explains change from 2018 to 2024 best
 # calculates residuals: how far off is prediction from value for each district
 # calculates projection: uses model for next prediciton
+
+# merges years into one GeoDataFrame, every district has columns with data for both years
+def merge_two_years(gdf_t1, gdf_t2, id_col):
+    # set the district ID as the index so both years can be joined on it
+    g1 = gdf_t1.set_index(id_col)
+    g2 = gdf_t2.set_index(id_col)
+    common = [c for c in g1.columns if c in g2.columns and c != "geometry"]
+    # join the two years on the common columns and keep the geometry from t1
+    merged = g1[common + ["geometry"]].join(g2[common], lsuffix="_t1", rsuffix="_t2", how="inner")
+    return gpd.GeoDataFrame(merged, geometry="geometry", crs=g1.crs)
+
+
+# calculates average of each districts neihgbours, based on swm (spatial lag for model)
+def spatial_lag_from_w(values, w):
+    w.transform = "r"
+    W_full, ids = w.full()
+    lagged = W_full @ values.reindex(ids).to_numpy()
+    return pd.Series(lagged, index=ids, name=f"{values.name}_lag").reindex(values.index)
+
+
+# trains model: what explains change from 2018 to 2024 best
+# calculates residuals: how far off is prediction from value for each district
+# calculates projection: uses model for next prediciton
 def build_prediction_table(gdf, indicator, w, steps=1, name_col=None):
     y_t1 = gdf[f"{indicator}_t1"]
     y_t2 = gdf[f"{indicator}_t2"]
