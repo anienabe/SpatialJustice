@@ -405,10 +405,12 @@ def score(
 
     if scope not in ("current", "historical", "full"):
         raise typer.BadParameter("scope must be one of: current, historical, full")
-
+    
+    # indicators used by build_composite_score and flag_consistent_disadvantage
     indicators = parse_indicators(indicator)
-
+    # t2 is always used (every scope)
     gdf_t2 = load_database(filename=filename_t2)
+    # earlier year for scopes historical and full
     gdf_t1 = load_database(filename=filename_t1) if scope in ("historical", "full") else None
 
     # block only if points existing
@@ -422,6 +424,7 @@ def score(
                 gdf_t1, _ = count_points_in_boundaries(gdf_t1, point_layer) # _ : point_col is already defined 
 
     merged, w = None, None
+    # prediction functionality only for scope full
     if scope == "full":
         merged = merge_two_years(gdf_t1, gdf_t2, id_col=id_col)
         weight_builders = {

@@ -44,6 +44,7 @@ def minmax(series: pd.Series) -> pd.Series:
         return pd.Series(0.5, index=series.index)
     return (series- series.min()) / rng
 
+# composite score with normalized column per indicator
 def build_composite_score(gdf: gpd.GeoDataFrame, indicators: dict[str, str]) -> pd.DataFrame:
     """
     Normalizes each indicator to [0, 1] and averages them into a composite score where 1 = worst sitution, 0 = best situation. 
@@ -66,12 +67,14 @@ def build_composite_score(gdf: gpd.GeoDataFrame, indicators: dict[str, str]) -> 
     for col, direction in indicators.items():
         norm = minmax(gdf[col])
         if direction == "lower_worse":
-            #invert so that low raw values -> high score (=worse)
+            # invert so that low raw values -> high score (=worse)
             norm = 1 - norm
         normalized[f"{col}_score"] = norm
         logger.info(f" {col} ({direction}): min={gdf[col].min():.3f}, max={gdf[col].max():.3f}")
 
+    # put all normalized indicator scores side by side as columns
     result = pd.DataFrame(normalized, index=gdf.index)
+    # average across all indicators per district: every indicator counts equally
     result["composite_score"] = result.mean(axis=1)
 
     logger.info(

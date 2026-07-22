@@ -53,18 +53,22 @@ def project_indicators_to_future(
     Projects every indicator into the future, so a composite score can be
     built for a future year (e.g. 2030).
     """
+    # use district ID as index values 
     gdf_t2_by_district = gdf_t2.set_index(id_col)
     projected_columns = {}
  
     for indicator_name in indicators:
         column_t1 = f"{indicator_name}_t1"
         column_t2 = f"{indicator_name}_t2"
+        # projection only possible if indicator exists for both years
         has_both_years = column_t1 in merged.columns and column_t2 in merged.columns
  
         if has_both_years:
+            # predict for all requested time steps, uses function from prediction.py
             prediction_table = build_prediction_table(
                 merged, indicator=indicator_name, w=w, steps=steps, name_col=name_col
             )
+            # keep projected values
             projected_columns[indicator_name] = prediction_table[f"{indicator_name}_projection_step{steps}"]
         else:
             logger.warning(
@@ -72,10 +76,11 @@ def project_indicators_to_future(
                 f"(e.g. a point-data count) - carrying its current value forward "
                 f"unchanged instead of projecting it."
             )
-            # not in merged at all, so read it from the original t2 data instead,
-            # then line it up with merged's district order
+            # no projection possible: reuse current value from t2
+            # reindex keeps same district order as in merged table
             projected_columns[indicator_name] = gdf_t2_by_district[indicator_name].reindex(merged.index)
- 
+
+    # build new gdf with projected indicators and original geometry
     projected_df = pd.DataFrame(projected_columns, index=merged.index)
     projected_gdf = gpd.GeoDataFrame(projected_df, geometry=merged.geometry, crs=merged.crs)
     return projected_gdf
