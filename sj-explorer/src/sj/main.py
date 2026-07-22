@@ -83,14 +83,15 @@ def correlation(
 
     polygons = load_database(filename=filename)
 
-    # Point data counting (if desired)
+    # Block only if point data given: Point data counting
     if points:
         for point_layer in points:
             polygons, point_col = count_points_in_boundaries(polygons, point_layer)
         if socio_index == "deaths_per_1000_abs":  # default not explicitly set
             socio_index = point_col
     
-    # add two columns (analysis variables) of the geojson or add two point datasets
+    # add two columns (analysis variables) of the geojson 
+    # e.g. for adding the share of 65-80 year olds and 80plus year olds because the goal is analysing old people
     if "+" in analysis_variable:
         col1, col2 = analysis_variable.split("+")
         col1 = col1.strip()
@@ -410,13 +411,15 @@ def score(
     gdf_t2 = load_database(filename=filename_t2)
     gdf_t1 = load_database(filename=filename_t1) if scope in ("historical", "full") else None
 
-    # use point data counts in score as additional indicators
+    # block only if points existing
+    # use point data counts as additional indicators for score functionality
+    # for each point layer, do the counting function from points.py, lower is always worse
     if points:
         for point_layer in points:
             gdf_t2, point_col = count_points_in_boundaries(gdf_t2, point_layer)
             indicators.setdefault(point_col, "lower_worse")
-            if gdf_t1 is not None:
-                gdf_t1, _ = count_points_in_boundaries(gdf_t1, point_layer)
+            if gdf_t1 is not None: # if there is a gdf from another year (past), do the counting function as well
+                gdf_t1, _ = count_points_in_boundaries(gdf_t1, point_layer) # _ : point_col is already defined 
 
     merged, w = None, None
     if scope == "full":

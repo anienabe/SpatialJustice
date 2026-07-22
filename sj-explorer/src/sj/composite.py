@@ -4,7 +4,7 @@ import geopandas as gpd
 
 logger = logging.getLogger(__name__)
 
-
+# the flag of indicators have to have a lower_worse or higher_worse, this is to make a readable dictionary of it
 def parse_indicators(indicator_flags: list[str]) -> dict[str, str]:
     """
     Parses the CLI indicator flags into a dict of {column: direction}.
@@ -24,7 +24,7 @@ def parse_indicators(indicator_flags: list[str]) -> dict[str, str]:
                 f"Indicator '{flag}' is missing a direction. "
                 f"Use the format 'column_name:higher_worse' or 'column_name:lower_worse'."
             )
-        col, direction = flag.split(":", 1)
+        col, direction = flag.split(":", 1) # cut the String in two at :
         col = col.strip()
         direction = direction.strip()
         if direction not in ("higher_worse", "lower_worse"):
@@ -32,9 +32,10 @@ def parse_indicators(indicator_flags: list[str]) -> dict[str, str]:
                 f"Unknown direction '{direction}' for indicator '{col}'."
                 f"Must be 'higher_worse' or 'lower_worse'."
             )
-        parsed[col] = direction
+        parsed[col] = direction 
     return parsed
 
+# normalize a Series of values to values between 0 and 1, the calculating function needed for build_composite_score
 def minmax(series: pd.Series) -> pd.Series:
     """Min-max normalization to [0, 1]. Returns 0.5 everywhere if range is zero."""
     rng = series.max() - series.min()

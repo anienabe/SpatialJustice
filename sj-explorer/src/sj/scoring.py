@@ -7,6 +7,7 @@ from sj.prediction import build_prediction_table
  
 logger = logging.getLogger(__name__)
 
+# takes the weights input, normalizes them and put them into a new dict
 def normalize_weights(weights: dict[str, float]) -> dict[str, float]:
     """
     Scales a dict of weight, sums to 1.
@@ -79,7 +80,7 @@ def project_indicators_to_future(
     projected_gdf = gpd.GeoDataFrame(projected_df, geometry=merged.geometry, crs=merged.crs)
     return projected_gdf
 
-# for two years, so in our context 2024 as current and 2018 as historical values
+# for one or multiple years
 def build_multi_year_score(
     gdf_t2, indicators, id_col, name_col, scope,
     weight_past=1.0, weight_current=1.0, weight_future=1.0,
@@ -88,23 +89,27 @@ def build_multi_year_score(
     if scope not in ("current", "historical", "full"):
         raise ValueError(f"not in scope of current, historical, full")
 
-    # current year is always included
+    # current year is always included, make new dicts
+    # year_scores collects values for each time, year_weights has the weights
     year_scores = {"score_current": score_single_year(gdf_t2, indicators, id_col)}
     year_weights = {"score_current": weight_current}
 
+    # this block only if historical or full scope and another gdf from another time is given
     if scope in ("historical", "full"):
         if gdf_t1 is None:
             raise ValueError(f"requires past data")
         year_scores["score_past"] = score_single_year(gdf_t1, indicators, id_col)
         year_weights["score_past"] = weight_past
 
+    # this block only if full scope
     if scope == "full":
         if merged is None or w is None:
             raise ValueError("full scope requires merged and w")
         
+        # extra functionality because there are no values for future, need to project and score them first
         projected_gdf = project_indicators_to_future(merged, indicators, name_col=name_col, w=w, gdf_t2=gdf_t2, id_col=id_col, steps=steps)
         future_result = build_composite_score(projected_gdf, indicators)
-        year_scores["score_future"] = future_result["composite_score"]
+        year_scores["score_future"] = future_result["composite_score"] # then add to dict directly
         year_weights["score_future"] = weight_future
 
     year_weights = normalize_weights(year_weights)
@@ -119,12 +124,17 @@ def build_multi_year_score(
     if len(table) < before:
         logger.warning(f"Dropped {before - len(table)} district(s) with missing data.")
 
-    # weighted sum of all included year-scores
+    # final scoring: weighted sum of all included year-scores
+    # every time existent (e.g. current year) is a column, functionality is column by column
+    # there is a value for each district (in a Series) and a weight from the year 
+    # first Series * weight, then addition to final score 
+    # everything is added up to the final score, final score per district 
     final_score = pd.Series(0.0, index=table.index)
     for score_name, weight in year_weights.items():
         final_score = final_score + table[score_name] * weight
     table["final_score"] = final_score
 
+    # ranking
     table = table.sort_values("final_score", ascending=False)
     table["rank"] = range(1, len(table) + 1)
 

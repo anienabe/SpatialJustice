@@ -32,10 +32,11 @@ def count_points_in_boundaries(boundaries, point_layer_name: str, output_dir: st
     # count the points
     point_count = joined.groupby('index_right').size().reset_index(name='amount_points')
 
-    # merge with boundaries
+    # merge with boundaries: bring the geometries in boundaries together with the counting
+    # boundaries result has every district, map the right value for each district, if none make a 0
     boundaries_result = boundaries.copy()
     col_name = f"{point_layer_name}_count"
-    boundaries_result[col_name] = boundaries_result.index.map(
+    boundaries_result[col_name] = boundaries_result.index.map( 
         point_count.set_index('index_right')['amount_points']
     ).fillna(0).astype(int)
 
