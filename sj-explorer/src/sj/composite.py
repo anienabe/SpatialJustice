@@ -96,14 +96,15 @@ def flag_consistent_disadvantage(
     """
     scored = build_composite_score(gdf, indicators)
 
-    # each entry is a boolean indicating whether the district is flagged for that indicator
+    # each entry is a boolean, indicating whether the district is flagged for that indicator
+    # Ranking for each indicator, with ties included -> get same rank
     flag_cols = {}
     for col in indicators:
         score_col = f"{col}_score"
         ranks = scored[score_col].rank(method="min", ascending=False)
         flag_cols[f"{col}_flagged"] = ranks <= flag_top_n
-
     result = pd.DataFrame(flag_cols, index=scored.index)
+    
     # count how many indicators each district is flagged for
     result["n_indicators_flagged"] = result.sum(axis=1)
     result["flagged_indicators"] = result[list(flag_cols)].apply(

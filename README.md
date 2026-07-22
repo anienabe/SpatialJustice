@@ -40,7 +40,7 @@ As societies continue to age and the needs of younger generations shape the futu
 
 Our support decision system is based on two Justice Concepts.
 
-First, **John Rawls' Theory of Justice (1971)** [1] says that social and economic inequalities is only justified, if they bring the greatest benefit to the least advantaged people of our society A fair equality of opportunity is already ensured.
+First, **John Rawls' Theory of Justice (1971)** [1] says that social and economic inequalities is only justified, if they bring the greatest benefit to the least advantaged people of our society. A fair equality of opportunity is already ensured.
 
 Also **Iris Marion Young in Justice and the Politics of Difference (1990)** [2] says that it is not good to think from justice only in a distributive kind of manner, so just asking who owns how much (number of daycares, care facilities per district). This does not show the structures and processes that create this distribution.
 
@@ -301,6 +301,7 @@ All output files are in reports folder.
 ## Our Results
 
 ### Correlation: Elderly Poverty and Living Alone
+
 Do districts with elderly poverty also have more people living alone?
 
 ```bash
@@ -312,6 +313,7 @@ uv run sj correlation -v "over_65_SGB_XII_pct" -s "single_households_over_65_pct
 The rook map shows HH-clusters of elderly poverty in the city centre and north, with LL-clusters in the south. When weighted by single-household rate, the HH-cluster in the centre grows and extends, suggesting that elderly poverty and living alone spatially reinforce each other: where one is high, the other tends to be too. So, the two factors cluster together, particularly in the centre of Dortmund.
 
 ### Correlation: Living Space and Playgrounds
+
 Do districts with less living space per inhabitant also have fewer playgrounds?
 
 ```bash
@@ -323,6 +325,7 @@ uv run sj correlation -v "living_space_per_inhabitant_sq_abs" -s "playgrounds_co
 The rook LISA map shows that low living space clusters in the north and northwest, while the south has significantly more space per person. When switching to the socio-weighted SWM, weighted by playground density, the Low-Low cluster in the north grows noticeably. This means that districts with little living space tend to also have fewer playgrounds nearby, pointing to a spatial double disadvantage.
 
 ### Prediction: Child Poverty 2018 → 2024 → 2030
+
 How does child poverty change over the years and what does the prediction show?
 
 ```bash
@@ -335,6 +338,7 @@ uv run sj predict -v "children_under_15_SGB_II_pct"
 The change map shows that child poverty mostly decreased across Dortmund between 2018 and 2024, but a few districts in the north and centre actually increased. The prediction map shows the pattern staying largely stable into 2030, the high-poverty cluster in the north remains. With an R² of 0.922, the model confirms that child poverty is structurally persistent: where it was high in 2018, it tends to still be high in 2024 and likely in 2030.
 
 ### Score: Elder Vulnerability and Child Poverty
+
 Which districts face the highest need for action across both vulnerable groups?
 
 ```bash

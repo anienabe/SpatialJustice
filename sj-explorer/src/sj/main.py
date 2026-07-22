@@ -228,6 +228,7 @@ def predict(
     gdf = merge_two_years(polygons_t1, polygons_t2, id_col=id_col)
  
     # use previously defined weight functions
+    # only selected weight gets built
     weight_builders = {
         "rook": lambda: create_rook_swm(gdf),
         "queen": lambda: create_queen_swm(gdf),
@@ -237,14 +238,17 @@ def predict(
     if weight not in weight_builders:
         raise typer.BadParameter(f"Unknown weight: {weight}")
     w = weight_builders[weight]()
- 
+
+    # build the prediction table with the model, residuals, and projections
     table = build_prediction_table(gdf, indicator=indicator, w=w, steps=steps, name_col=name_col)
     print(table.sort_values(f"{indicator}_residual", key=abs, ascending=False).head(10))
 
+    # compute MAE and RMSE for the model's predictions
     actual    = table[f"{indicator}_t2"].to_numpy()
     predicted = table[f"{indicator}_pred_t2"].to_numpy()
     logger.info(f"MAE={mae(actual, predicted):.3f}  RMSE={rmse(actual, predicted):.3f}")
- 
+
+    # save the prediction table to CSV
     out_path = f"reports/prediction_{indicator}_{weight}.csv"
     table.to_csv(out_path)
     logger.info(f"Prediction table saved: {out_path}")
@@ -266,7 +270,7 @@ def predict(
     logger.info(f"Change map saved: {change_map_path}")
 
 
-#### Composite scoring command
+### Composite scoring command
 @app.command()
 def score(
     indicator: List[str] = typer.Option(
@@ -457,6 +461,7 @@ def score(
 
     # flag districts that are consistently disadvantaged across multiple indicators
     flagged = flag_consistent_disadvantage(gdf_t2.set_index(id_col), indicators, flag_top_n=flag_top_n)
+
     # add district names to flagged table 
     flagged.insert(0, "name", gdf_t2.set_index(id_col)[name_col].reindex(flagged.index))
     print()
