@@ -40,20 +40,17 @@ As societies continue to age and the needs of younger generations shape the futu
 
 Our support decision system is based on two Justice Concepts.
 
-First, **John Rawls' Theory of Justice (1971)** [1] says that social and economic inequalities is only justified, if they bring the greatest benefit to the least advantaged people of our society. A fair equality of opportunity is already ensured.
+First, **John Rawls' Theory of Justice (1971)** [1] says that social and economic inequalities are only justified if they bring the greatest benefit to the least advantaged people of our society. A fair equality of opportunity is already ensured.
 
-Also **Iris Marion Young in Justice and the Politics of Difference (1990)** [2] says that it is not good to think from justice only in a distributive kind of manner, so just asking who owns how much (number of daycares, care facilities per district). This does not show the structures and processes that create this distribution.
+Also, **Iris Marion Young in Justice and the Politics of Difference (1990)** [2] states that it is not good to think from justice only in a distributive manner, so just asking who owns how much (number of daycares, care facilities per district). This does not show the structures and processes that create this distribution.
 
 Our Composite Index shows where there is inequality in the infrastructure, not how it happened. The ranking is meant to help make decisions based on the idea that the most disadvantaged areas should be prioritised. This project does not look at the reasons for this.
 
 ## Project Idea and Goals
 
-We want to design a decision support system for the city of Dortmund. Certain factors determine and contribute to inequalities in vulnerable groups. We analyse these factors to develop a support decision system where social stress might occur, giving the opportunity to recognize need for political decision actions in Dortmund's districts to reduce inequality and provide equal opportunities.
-For a just city.
+We want to design a decision support system for the city of Dortmund. Certain factors determine and contribute to inequalities in vulnerable groups. We analyse these factors to develop a support decision system where social stress might occur, giving the opportunity to recognize need for political decision actions in Dortmund's districts to reduce inequality and provide equal opportunities for a just city.
 
-That's why we include socioeconomic factors from all 170 districts of Dortmund as well as the number of facilities (e.g. kindergartens, day care) in each district.
-The following image shows our preliminary questions that will be analyzed with our Spatial Decision Support system which includes a spatial weight matrix.
-For each question we plan to create a district ranking (e.g. top ten) to identify districts for the specific question and to find out if there are districts which seem to be inequal across multiple indicators.
+Our project aims to give possibilities for three different analysis approaches, depending on the use case and required analysis results. As a first step, one can calculate the spatial correlation that neighbouring districts have on the analysed indicators. Then, one can also project the trends of an indicator n steps into the future. To streamline all the results, a composite score can be computed that ranks all outputs and gives an overall score about the most disadvantaged districts.
 
 ## Analytical Solution
 
@@ -70,6 +67,8 @@ The social factors for Dortmund are taken from the
 The Point data is from the [Open Data Portal Dortmund](https://open-data.dortmund.de/pages/start/)
 
 The healthcare facilities are retrevied from OSM
+
+We included socioeconomic factors from all 170 districts of Dortmund as well as the number of facilities (e.g. kindergartens, day care) in each district. 
 
 ## Project Structure
 

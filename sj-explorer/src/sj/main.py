@@ -68,7 +68,7 @@ def correlation(
 ):
     """
     Loads a GeoJSON file, builds one or more spatial weight matrices (SWMs),
-    and computes Moran's I (global spatial autocorrelation) for a chosen variable.
+    and computes Moran's I (global and local spatial autocorrelation) for a chosen variable.
 
     Supported weight types (--weight flag):
       rook       shared edges only (strict contiguity)
