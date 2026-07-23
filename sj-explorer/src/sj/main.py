@@ -84,6 +84,7 @@ def correlation(
     polygons = load_database(filename=filename)
 
     # Block only if point data given: Point data counting
+    # the polygons get a new column with the point data counting, treated like any other data column
     if points:
         for point_layer in points:
             polygons, point_col = count_points_in_boundaries(polygons, point_layer)
