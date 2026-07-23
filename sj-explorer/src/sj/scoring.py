@@ -106,7 +106,7 @@ def build_multi_year_score(
         year_scores["score_past"] = score_single_year(gdf_t1, indicators, id_col)
         year_weights["score_past"] = weight_past
 
-    # this block only if full scope
+    # this block only if full scope, w is weight (rook, queen,...)
     if scope == "full":
         if merged is None or w is None:
             raise ValueError("full scope requires merged and w")
