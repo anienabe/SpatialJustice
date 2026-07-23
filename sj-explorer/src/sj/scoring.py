@@ -133,7 +133,7 @@ def build_multi_year_score(
     # every time existent (e.g. current year) is a column, functionality is column by column
     # there is a value for each district (in a Series) and a weight from the year 
     # first Series * weight, then addition to final score 
-    # everything is added up to the final score, final score per district 
+    # final score per district 
     final_score = pd.Series(0.0, index=table.index)
     for score_name, weight in year_weights.items():
         final_score = final_score + table[score_name] * weight
